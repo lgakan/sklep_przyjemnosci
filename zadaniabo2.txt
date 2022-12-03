@@ -1,0 +1,34 @@
+Klasa do reprezentacji rozwiązania:
+- macierz krotek rozwiązania
++ metoda "daj rozwiązanie początkowe"
++ metoda "daj aktualnie najlepsze rozw"
+Klasa do reprezentacji sprzedawcy:
+- id sprzedawcy
+- słownik: keys=produkt, values=(cena,ilość)
+- obiekt funkcja przesyłki
+- obiekt funkcja zniżek
++ metoda "cena przesyłki z listy produktów"
++ metoda "cena produktów ze zniżką"
++ metoda get_products()
+Klasa do reprezentacji produktu:
+- id
+- nazwa
+- waga
+Klasa reprezentacji funkcji przesyłek:
+- funkcja lambda
++ metody do tworzenia funkcji automatycznie przy inicjalizacji obiektu
+Klasa funkcji zniżek:
+- funkcja lambda
++ metody do tworzenia funkcji automatycznie przy inicjalizacji obiektu
+Klasa obsługi algorytmu:
+(póki co pusta chyba że nam się bedzie nudzić)
+Klasa klienta:
+- id klienta
+- lista zakupów: lista krotek (produkt, ilość)
+- ograniczenie finansowe
++ metoda "daj listę zakupów"
+
+Klasa z inwentarzem ogólnym:
+- lista unikalnych produktów
+- rozmiar inwentarza
++ metoda get_product() [korzystają sprzedawcy]
