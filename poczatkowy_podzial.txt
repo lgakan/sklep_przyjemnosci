@@ -1,0 +1,15 @@
+Podział pracy (roboczy):
+
+Mati
+- klasa produkty
+- klasa sprzedawca
+- klasa klient
+
+Łukasz
+- klasa inwentarz (przez rz pamiętjamy)
+- klasa rozwiązanie
+
+Wiktor
+- klasa funkcji przesyłek
+- klasa funkcji zniżek
+- klasa obsługi algorytmu
