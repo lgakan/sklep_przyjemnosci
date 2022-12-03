@@ -6,7 +6,7 @@ Mati
 - klasa klient
 
 Łukasz
-- klasa inwentarz (przez rz pamiętjamy)
+- klasa inwentarz (przez rz pamiętajmy)
 - klasa rozwiązanie
 
 Wiktor
