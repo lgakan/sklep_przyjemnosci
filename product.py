@@ -17,3 +17,8 @@ class Product:
         self.product_name = product_name
         self.product_weight = product_weight
 
+    def get_product_weight(self):
+        return self.product_weight
+
+    def get_product_name(self):
+        return self.product_name
