@@ -16,12 +16,14 @@ class Seller:
         self.discount = Discount(list_of_conditions=discount_info)
         self.inventory = inventory
 
+    # Returns delivery prices for given list of products' ids
     def get_delivery_price(self, list_of_items):
         weight = 0
         for item_id, item_amount in list_of_items:
             weight += item_amount * self.inventory.get_product_by_id(item_id).get_product_weight()
         return self.delivery.get_cost(weight=weight)
 
+    # Returns new prices for given list of products' ids
     def get_discounted_price(self, list_of_items):
         prices = []
         amount = 0
@@ -31,5 +33,6 @@ class Seller:
             amount += quantity
         return self.discount.get_new_cost(old_cost=prices, amount=amount)
 
-    def get_products(self):  #zwraca asortyment sprzedawcy
+    # Returns seller's assortment
+    def get_products(self):
         return self.store
