@@ -1,18 +1,30 @@
 from file_reader import FileReader
+from product import Product
 
 
 class GeneralInventory:
     def __init__(self):
         self.file_reader = FileReader('unique_items_file.csv')
-        self.unique_products_list = self._get_all_unique_products()
+        self.product_list = []
 
-    def _get_all_unique_products(self):
-        return self.file_reader.get_column_from_file('unique_product')
+    def add_product(self, product: Product):
+        self.product_list.append(product)
 
-    # TODO Here, we should return object from Product class
     def get_product_by_id(self, id_product: int):
-        return self.file_reader.get_record_by_id_column('id_product', id_product)
+        if self.get_inventory_size() == 0:
+            return 0
+        else:
+            for i in self.product_list:
+                if i.product_id == id_product:
+                    return i
 
     def get_inventory_size(self):
-        return len(self._get_all_unique_products())
+        return len(self.product_list)
 
+
+    # def get_all_unique_products(self):
+    #     return self.file_reader.get_column_from_file('unique_product')
+
+
+g = GeneralInventory()
+print(g.get_product_by_id(1))

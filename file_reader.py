@@ -4,17 +4,9 @@ import sys
 
 class FileReader:
     def __init__(self, path: str):
-        self.path = self.set_path(path)
+        self.path = path
         self.extension = self.set_extension(path)
         # self.file_content = []
-
-    @staticmethod
-    def set_path(path: str):
-        try:
-            open(path, 'r')
-        except OSError as e:
-            print(f"Unable to open {path}: {e}", file=sys.stderr)
-        return path
 
     @staticmethod
     def set_extension(path: str):
