@@ -8,7 +8,7 @@ class Client:
         self.budget = budget
 
     def get_order(self) -> List[Tuple[int, int]]:
-        return str(self.order)
+        return self.order
 
 
 if __name__ == '__main__':

@@ -9,9 +9,11 @@ class Seller:
     #funkcja znizek
 
     def get_delivery_price(self):
+
         return
+
     def get_discounted_price(self):
         return
 
-    def get_products(self):
-        return
+    def get_products(self):  #zwraca asortyment sprzedawcy
+        return self.store

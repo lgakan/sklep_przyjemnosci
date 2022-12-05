@@ -3,11 +3,12 @@ from typing import List, Tuple, Dict
 # można by zrobić jakoś, żeby id inicjalizowało się samo (następny wolny numer)
 # i było wiązane z jakąś nazwą produktu
 # wtedy potrzebowalibyśmy ogólnej listy z produktami
+# edit: Jak mamy plik csv, gdzie sami nadaliśmy nazwy to już nieważne
 
 
-class ProductList: # na razie roboczo wstawione, do obgadania
-    def __init__(self):
-        self.product_list = []
+# class ProductList: # na razie roboczo wstawione, do obgadania
+#     def __init__(self):
+#         self.product_list = []
 
 
 class Product:
