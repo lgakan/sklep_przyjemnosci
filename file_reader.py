@@ -52,3 +52,9 @@ class FileReader:
                 for line in csv_reader:
                     if line[id_column_name] == str(id_column_value):
                         return line
+
+    def get_file_records(self):
+        with open(self.path, 'r') as file:
+            csv_reader = csv.DictReader(file, delimiter=';')
+            for line in csv_reader:
+                yield line

@@ -6,9 +6,13 @@ class GeneralInventory:
     def __init__(self):
         self.file_reader = FileReader('unique_items_file.csv')
         self.product_list = []
+        self.add_products_from_file()
 
-    def add_product(self, product: Product):
-        self.product_list.append(product)
+    def add_products_from_file(self):
+        for i in self.file_reader.get_file_records():
+            self.product_list.append(Product(product_id=self.get_inventory_size(),
+                                             product_weight=i['weight'],
+                                             product_name=i['product_name']))
 
     def get_product_by_id(self, id_product: int):
         if self.get_inventory_size() == 0:
@@ -25,6 +29,5 @@ class GeneralInventory:
     # def get_all_unique_products(self):
     #     return self.file_reader.get_column_from_file('unique_product')
 
-
 g = GeneralInventory()
-print(g.get_product_by_id(1))
+g.add_products_from_file()
