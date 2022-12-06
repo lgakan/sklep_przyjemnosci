@@ -36,3 +36,6 @@ class Seller:
     # Returns seller's assortment
     def get_products(self):
         return self.store
+
+    def __repr__(self):
+        return f'{self.id}, {self.store}'

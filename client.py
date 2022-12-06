@@ -1,4 +1,4 @@
-from typing import List, Tuple, Dict
+from typing import List, Tuple
 
 
 class Client:
@@ -12,6 +12,6 @@ class Client:
 
 
 if __name__ == '__main__':
-    lista = [(1, 20), (7, 15), (3,2)]
-    klient1 = Client(1, lista, 300)
-    print(klient1.get_order())
+    lista = [(1, 20), (7, 15), (3, 2)]
+    client1 = Client(1, lista, 300)
+    print(client1.get_order())

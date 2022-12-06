@@ -2,13 +2,13 @@ import numpy as np
 
 
 class Solution:
-    def __int__(self, sellers, items):
+    def __init__(self, sellers, items):
         self.solution_matrix = None
         self.create_solution_matrix(len(sellers), len(items))
         self.current_best = None
 
     def create_solution_matrix(self, size_s, size_i):
-        self.solution_matrix = np.zeros((size_s + 1, size_i))
+        self.solution_matrix = np.zeros((size_i + 1, size_s), dtype=np.int)
 
     def get_starting_solution(self):
         pass

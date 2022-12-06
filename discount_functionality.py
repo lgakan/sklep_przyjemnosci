@@ -13,6 +13,9 @@ class Discount:
     def get_disc(self):
         return self.discount
 
+    def __repr__(self):
+        return f'{self.discount}'
+
 
 def main():
     x_price = [100, 40, 22, 36]

@@ -25,6 +25,7 @@ class GeneralInventory:
     def get_inventory_size(self):
         return len(self.product_list)
 
+    # TODO: Put "\n" here
     def __str__(self):
         return str(self.product_list)
 
@@ -34,4 +35,3 @@ class GeneralInventory:
 
 g = GeneralInventory()
 g.add_products_from_file()
-# print(g)

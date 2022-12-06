@@ -9,6 +9,9 @@ class Delivery:
     def get_func(self):
         return self.func
 
+    def __repr__(self):
+        return f'{self.func}'
+
 
 def build_func(conditions: list):
     string_to_lambda = ""

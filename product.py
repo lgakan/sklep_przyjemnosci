@@ -23,5 +23,5 @@ class Product:
     def get_product_name(self):
         return self.product_name
 
-    def __str__(self):
-        return self.product_id, str(self.product_name), self.product_weight
+    def __repr__(self):
+        return f'{self.product_id}, {self.product_name}, {self.product_weight}'
