@@ -10,6 +10,9 @@ class Client:
     def get_order(self) -> List[Tuple[int, int]]:
         return self.order
 
+    def get_order_size(self):
+        return len(self.order)
+
 
 if __name__ == '__main__':
     lista = [(1, 20), (7, 15), (3, 2)]
