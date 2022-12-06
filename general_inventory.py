@@ -25,9 +25,13 @@ class GeneralInventory:
     def get_inventory_size(self):
         return len(self.product_list)
 
+    def __str__(self):
+        return str(self.product_list)
+
 
     # def get_all_unique_products(self):
     #     return self.file_reader.get_column_from_file('unique_product')
 
 g = GeneralInventory()
 g.add_products_from_file()
+# print(g)
