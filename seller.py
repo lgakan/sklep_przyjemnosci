@@ -28,9 +28,9 @@ class Seller:
         prices = []
         amount = 0
         for item_id, item_amount in list_of_items:
-            price, quantity = self.get_products()[item_id]
-            prices.append(price*quantity)
-            amount += quantity
+            price, _ = self.get_products()[str(item_id)]
+            prices.append((float(price)*item_amount))
+            amount += item_amount
         return self.discount.get_new_cost(old_cost=prices, amount=amount)
 
     # Returns seller's assortment

@@ -8,7 +8,7 @@ class Solution:
         self.current_best = None
 
     def create_solution_matrix(self, size_s, size_i):
-        self.solution_matrix = np.zeros((size_i + 1, size_s), dtype=np.int)
+        self.solution_matrix = np.zeros((size_i, size_s), dtype=np.int)
 
     def get_starting_solution(self):
         pass
@@ -18,3 +18,6 @@ class Solution:
 
     def get_solution_matrix_shape(self):
         return len(self.solution_matrix), len(self.solution_matrix[0])
+
+    def __repr__(self):
+        return self.solution_matrix.__str__()

@@ -11,7 +11,7 @@ class GeneralInventory:
     def add_products_from_file(self):
         for i in self.file_reader.get_file_records():
             self.product_list.append(Product(product_id=self.get_inventory_size(),
-                                             product_weight=i['weight'],
+                                             product_weight=float(i['weight']),
                                              product_name=i['product_name']))
 
     def get_product_by_id(self, id_product: int):
@@ -35,7 +35,10 @@ class GeneralInventory:
 
     # TODO: Put "\n" here
     def __str__(self):
-        return str(self.product_list)
+        product_list = ""
+        for line in self.product_list:
+            product_list += f'{line}\n'
+        return product_list
 
 
     # def get_all_unique_products(self):

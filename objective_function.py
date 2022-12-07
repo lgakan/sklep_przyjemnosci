@@ -16,16 +16,15 @@ class ObjFunction:
     def get_objective_func(self):
         n, m = self.solution.get_solution_matrix_shape()
         column_values = []
-        for j in m:
+        for j in range(m):
             list_of_items = []
-            list_of_prices = []
-            for i in n:
+            for i in range(n):
                 product = self.solution.solution_matrix[i][j]
-                if isinstance(product, tuple):
-                    list_of_items.append((i, product[1]))
-                    list_of_prices.append((i, product[0]))
+                if product > 0:
+                    list_of_items.append((i, product))
             sj = self.seller_base.get_seller_by_id(str(j)).get_delivery_price(list_of_items)
-            new_prices = self.seller_base.get_seller_by_id(str(j)).get_discounted_price(list_of_prices)
+            print(f"Seller {j} delivery price: {sj}")
+            new_prices = self.seller_base.get_seller_by_id(str(j)).get_discounted_price(list_of_items)
             column_values.append(sj + sum(new_prices))
 
-        return sum(column_values)
+        return sum(column_values), column_values
