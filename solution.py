@@ -15,3 +15,6 @@ class Solution:
 
     def get_currently_best_solution(self):
         return self.current_best
+
+    def get_solution_matrix_shape(self):
+        return len(self.solution_matrix), len(self.solution_matrix[0])
