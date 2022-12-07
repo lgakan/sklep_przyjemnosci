@@ -22,6 +22,14 @@ class GeneralInventory:
                 if i.product_id == id_product:
                     return i
 
+    def get_product_by_name(self, product_name: str):
+        if self.get_inventory_size() == 0:
+            return None
+        else:
+            for i in self.product_list:
+                if i.product_name == product_name:
+                    return i
+
     def get_inventory_size(self):
         return len(self.product_list)
 
@@ -32,6 +40,3 @@ class GeneralInventory:
 
     # def get_all_unique_products(self):
     #     return self.file_reader.get_column_from_file('unique_product')
-
-g = GeneralInventory()
-g.add_products_from_file()

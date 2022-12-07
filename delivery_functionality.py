@@ -24,3 +24,9 @@ def build_func(conditions: list):
             string_to_lambda += f"{pair[0]}"
     string_to_lambda += (len(conditions) - 2)*")"
     return lambda x: eval(string_to_lambda)
+
+
+if __name__ == '__main__':
+
+    mfmfm = Delivery([['x+2', 1], ['x+1', 2], ['x+4']])
+    print(mfmfm.get_cost(1))

@@ -13,11 +13,13 @@ class SellersBase:
         for i in self.file_reader.get_file_records():
             self.sellers_list.append(Seller(id_seller=self.get_sellers_base_size(),
                                             store={},
-                                            delivery_info=i['delivery'],
-                                            discount_info=i['discount'],
+                                            delivery_info=self.function_from_string(function_string=i['delivery'],
+                                                                                    func_type='delivery'),
+                                            discount_info=self.function_from_string(function_string=i['discount'],
+                                                                                    func_type='discount'),
                                             inventory=global_inventory))
 
-    def get_seller_by_id(self, id_seller: int):
+    def get_seller_by_id(self, id_seller: str):
         if self.get_sellers_base_size() == 0:
             return 0
         else:
@@ -32,6 +34,17 @@ class SellersBase:
 
     def get_sellers_base_size(self):
         return len(self.sellers_list)
+
+    def function_from_string(self, function_string, func_type: str):
+        strings_list, last_el = function_string.split('],')[:-1], function_string.split('],')[-1]
+        for i in range(len(strings_list)):
+            strings_list[i] = strings_list[i][1:].split(',')
+            strings_list[i][1] = float(strings_list[i][1])
+        if func_type == 'discount':
+            strings_list.append([float(last_el[1:-1])])
+        elif func_type == 'delivery':
+            strings_list.append([last_el[1:-1]])
+        return strings_list
 
     # TODO: Put '\n' here
     def __str__(self):
