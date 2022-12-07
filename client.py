@@ -12,6 +12,12 @@ class Client:
     def get_order(self) -> List[Tuple[str, int]]:
         return self.order
 
+    def get_product_ids(self):
+        list_of_ids = []
+        for item_name, item_count in self.get_order():
+            list_of_ids.append(self.inventory.get_product_by_name(item_name).get_product_id())
+        return list_of_ids
+
     def __repr__(self):
         orders = ""
         for i, order in enumerate(self.order):

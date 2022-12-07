@@ -51,10 +51,10 @@ def main():
     plt.show()
 
     # Generating exemplary solution matrix
-    my_solution.solution_matrix = np.array([[0,       3,    0,        0],
-                                            [1, 2,    0,        0],
-                                            [0,          0,       0,    3],
-                                            [0,          0,    1,     0]])
+    my_solution.solution_matrix = np.array([[0, 3, 0, 0],
+                                            [1, 2, 0, 0],
+                                            [0, 0, 0, 3],
+                                            [0, 0, 1, 0]])
     print(f'Your current solution:\n {my_solution}')
 
     # Generating target function

@@ -10,7 +10,7 @@ class Solution:
     def create_solution_matrix(self, size_s, size_i):
         self.solution_matrix = np.zeros((size_i, size_s), dtype=np.int)
 
-    def get_starting_solution(self):
+    def get_starting_solution(self, list_of_ids: list, list_of_seller_ids: list, construct_type: str):
         pass
 
     def get_currently_best_solution(self):

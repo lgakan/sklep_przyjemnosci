@@ -33,7 +33,6 @@ class GeneralInventory:
     def get_inventory_size(self):
         return len(self.product_list)
 
-    # TODO: Put "\n" here
     def __str__(self):
         product_list = ""
         for line in self.product_list:
