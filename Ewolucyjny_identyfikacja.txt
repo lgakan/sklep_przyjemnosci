@@ -1,0 +1,9 @@
+Osobnik -   macierz rozwiązań (początkowa i końcowa), chcemy jak najlepiej przystosować osobnika do środowiska,
+	    czyli zoptymalizować nasz problem.
+
+Populacja - wszystkie rozwiązania, które zostały obliczone w trakcie działania algorytmu.
+
+Fenotyp -   koszt danego zamówienia, funkcja celu (suma naleznosci za produkty u danego sprzedawcy + suma naleznosci
+	    za przesyłki)
+
+Genotyp -   
