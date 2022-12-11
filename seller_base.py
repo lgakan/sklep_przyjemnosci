@@ -47,13 +47,18 @@ class SellersBase:
     def get_sellers_base_size(self):
         return len(self.sellers_list)
 
-    def get_sellers_with_item(self, item_id):
+    def get_sellers_with_items(self, item_ids):
+        dict_of_sellers = {}
         list_of_sellers = []
-        for seller in self.sellers_list:
-            potential_seller = seller.item_in_stock(item_id)
-            if potential_seller:
-                list_of_sellers.append(potential_seller)
-        return list_of_sellers
+        for i, item_id in enumerate(item_ids):
+            list_of_sellers.append([])
+            for seller in self.sellers_list:
+                potential_seller = seller.item_in_stock(item_id)
+                if potential_seller:
+                    list_of_sellers[-1].append((potential_seller, seller.get_quantity_of_item(item_id)))
+            if list_of_sellers[-1]:
+                dict_of_sellers[item_id] = (list_of_sellers[-1])
+        return dict_of_sellers
 
     def __str__(self):
         list_of_sth = ""

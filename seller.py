@@ -39,10 +39,13 @@ class Seller:
 
     def item_in_stock(self, item_id):
         try:
-            _ = self.get_products()[item_id]
+            _ = self.get_products()[str(item_id)]
             return self.id
         except:
             return None
+
+    def get_quantity_of_item(self, item_id):
+        return int(self.get_products()[str(item_id)][1])
 
     def __repr__(self):
         return f'{self.id}, {self.store}'

@@ -12,6 +12,12 @@ class Client:
     def get_order(self) -> List[Tuple[str, int]]:
         return self.order
 
+    def get_oder_quantity(self):
+        quants = []
+        for quant in self.get_order():
+            quants.append(quant[1])
+        return quants
+
     def get_product_ids(self):
         list_of_ids = []
         for item_name, item_count in self.get_order():
