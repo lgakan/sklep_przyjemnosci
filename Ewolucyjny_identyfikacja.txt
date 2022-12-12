@@ -1,9 +1,50 @@
 Osobnik -   macierz rozwiązań (początkowa i końcowa), chcemy jak najlepiej przystosować osobnika do środowiska,
-	    czyli zoptymalizować nasz problem.
+	        czyli zoptymalizować nasz problem.
 
 Populacja - wszystkie rozwiązania, które zostały obliczone w trakcie działania algorytmu.
 
 Fenotyp -   koszt danego zamówienia, funkcja celu (suma naleznosci za produkty u danego sprzedawcy + suma naleznosci
-	    za przesyłki)
+	        za przesyłki)
 
-Genotyp -   
+Genotyp -   wartości na poszczególnych pozycjach w macierzy
+
+Chromosom - obiekty klasy solution wraz z dostępnymi jej metodami, macierze rozwiązań są tam generowane
+
+Gen    -    atrybuty klasy Solution
+
+Allel   -   wartości atrybutów klasy Solution
+
+Locus   -   wartości, które możemy uzyskać używając metod na obiektach klasy Solution
+
+Kodowanie rozwiązań - macierz (wiersze to produkty, kolumny to sprzedawcy, wartości to ilość upowanych produktów
+			                   u danego sprzedawcy).
+
+Funkcja przystosowania - funkcja celu
+
+Operacje na osobnikach:
+
+Selekcja -  prawdopodobnie nie będziemy używać tej operacji, ponieważ będziemy mieć funkcje walidacyjne, które nie
+            dopuszczą do działania algorytmu na początkowych rozwiązaniach, gdy nie będzie się zadzał budżet klienta lub
+            jego zamówienie nie będzie możliwe do spełnienia. Będą one wywoływane już na etapie tworzenia nowego
+            rozwiązania
+
+Reprodukcja - tę operację moglibyśmy zastosować w celu sprawdzenia, czy wynik końcowy dla danej początkowej macierzy
+              byłby zawsze taki sam, kilka razy puszczając algorytm na niej. Jako, że algorytm jest randomizowany,
+              dochodzenie do wyniku może być różne jednak w większości przypadków powinniśmy dostać takie same finalne
+              rezultaty
+
+Krzyżowanie - Jeśli zastosujemy metodę równoczesnego przerabiania dwóch macierzy rozwiązań, to wtedy moglibyśmy w jakiś
+              sposób porównywać ze sobą 2 tworzące się macierze rozwiązań i ewentualnie przenosić wartości optmalne z
+              jednej do drugiej. Moglibyśmy na przykład wywołać algorytm na jednej macierzy 2 razy, od początku
+              zamówienia i od końca, i wtedy przenieść rozwiązania z jednej macierzy do drugiej, co pozwoliłoby na zaoszczędzenie
+              czasu obliczeń.
+
+Mutacja -     Tej operacji będzemy używać najczęściej, ponieważ za każdym przejściem algorytmu będzie w sposób randomizowany
+              tworzyć nowe rozwiązania i porównywać je z tymi z poprzednich iteracji, aby zobaczyć, które z nich jest optymalne.
+              Prawdopodobnie stworzymy funkcję, która w sposób losowy będzie początkowo przydzielać wartości do danych komórek macierzy
+              oraz inną randomizowaną, która będzie zmieniać wartości w komórkach, aby zoptymalizować macierz rozwiązań,
+              przy jednoczesnym zachowaniu warunków zadania.
+
+
+
+
