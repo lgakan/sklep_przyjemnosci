@@ -1,4 +1,5 @@
 import numpy as np
+import random as rd
 
 
 class Solution:
@@ -12,15 +13,28 @@ class Solution:
 
     def get_starting_solution(self, dict_of_items_with_sellers, order_list, construct_type: str):
         if construct_type == 'left':
-            for i, (key, values) in enumerate(dict_of_items_with_sellers.items()):
-                quantity = order_list[i]
+            for i, (product_row, values) in enumerate(dict_of_items_with_sellers.items()):
+                quantity_from_buyer = order_list[i]
                 j = 0
-                while quantity > 0:
+                while quantity_from_buyer > 0:
                     seller_id, quantity_from_seller = values[j]
-                    slots = min(quantity, quantity_from_seller)
-                    self.solution_matrix[key][seller_id] = slots
-                    quantity -= slots
+                    slots = min(quantity_from_buyer, quantity_from_seller)
+                    self.solution_matrix[product_row][seller_id] = slots
+                    quantity_from_buyer -= slots
                     j += 1
+        elif construct_type == 'random':
+            for i, (product_row, values) in enumerate(dict_of_items_with_sellers.items()):
+                input_list_of_sellers = np.array(self.solution_matrix[product_row])
+                for j, (seller_id, quantity_from_seller) in enumerate(values):
+                    input_list_of_sellers[seller_id] = quantity_from_seller
+                concatenated_sellers = list(np.concatenate(np.array([a_i * [i] for i, a_i in
+                                                                     enumerate(input_list_of_sellers)
+                                                                     if a_i != 0], dtype=object)))
+                rd.shuffle(concatenated_sellers)
+                quantity_from_buyer = order_list[i]
+                sellers_chosen = concatenated_sellers[:quantity_from_buyer]
+                for seller in sellers_chosen:
+                    self.solution_matrix[product_row][seller] += 1
 
     def get_currently_best_solution(self):
         return self.current_best

@@ -5,6 +5,7 @@ from seller_base import SellersBase
 from objective_function import ObjFunction
 import matplotlib.pyplot as plt
 import numpy as np
+import random as rd
 
 
 def main():
@@ -18,8 +19,8 @@ def main():
     print(f'Sellers in total: {my_sellers_base.get_sellers_base_size()}\n')
 
     # Generating a client with the shopping list
-    my_own_self = Client(0, [('item_15', 5),
-                             ('item_16', 8)], 300, my_inventory)
+    my_own_self = Client(0, [('item_15', 7),
+                             ('item_16', 10)], 300, my_inventory)
     print(my_own_self)
 
     # Generating empty matrix based on amount of sellers and products in inventory
@@ -69,7 +70,7 @@ def main():
 
     my_solution.get_starting_solution(my_sellers_base.get_sellers_with_items(my_own_self.get_product_ids()),
                                       my_own_self.get_oder_quantity(),
-                                      'left')
+                                      'random')
     print(my_solution)
 
 
