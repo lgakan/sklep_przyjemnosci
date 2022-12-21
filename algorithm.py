@@ -1,6 +1,6 @@
 # functions needed to work out the final solution based on the evolutionary algorithm
 from solution import Solution
-
+from random import randint
 
 class EvolutionaryAlgorithm:
 
@@ -31,6 +31,35 @@ class EvolutionaryAlgorithm:
     def generate_population(self):
         pass
 
+
+def mutate_castling(matrix, type='row'):
+    m = len(matrix)
+    n = len(matrix[0])
+    if type == 'row':
+        pivot = m // 2
+        index_1 = randint(0, pivot-1)
+        index_2 = randint(pivot, m-1)
+        matrix[index_1], matrix[index_2] = matrix[index_2], matrix[index_1]
+        return matrix
+    if type == 'col':
+        pivot = n // 2
+        index_1 = randint(0, pivot-1)
+        index_2 = randint(pivot, m-1)
+        for i in range(m):
+            matrix[i][index_1], matrix[i][index_2] = matrix[i][index_2], matrix[i][index_1]
+        return matrix
+
+
+def crossover_chess(matrix1, matrix2):
+    m = len(matrix)
+    n = len(matrix[0])
+    for i in range(m):
+        for j in range(n):
+            if (i + j) % 2 != 0:
+                matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
+    return matrix1, matrix2
+
+
 def mutate_circle(matrix):
     m = len(matrix)   # ilość wierszy
     n = len(matrix[0])   # ilość kolumn
@@ -46,6 +75,7 @@ def mutate_circle(matrix):
             matrix[i+1][j] = elem1
             matrix[i][j] = elem2
     return matrix
+
 
 def crossover_halves(matrix1, matrix2, type='rows'):
     # m1 = len(matrix1)   # ilość wierszy
