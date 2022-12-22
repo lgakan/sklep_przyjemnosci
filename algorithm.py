@@ -1,6 +1,7 @@
 # functions needed to work out the final solution based on the evolutionary algorithm
 from solution import Solution
 from random import randint
+import numpy as np
 
 class EvolutionaryAlgorithm:
 
@@ -10,9 +11,12 @@ class EvolutionaryAlgorithm:
         self.mutation_prob = mutation_prob
 
     # TODO: Implement later
-    def evolution(self):
+    # population - lista macierzy rozwiązań, możemy startowo przyjąć, że będzie ich 10
+    def evolution(self, population: list):
         t = 0
         while True:
+        # teraz niby w algorytmie jest, by ocenić populację. I jest pytanie czy chcemy oceniać od razu każdą z macierzy,
+        # bo wsm nie wiem jak inaczej moglibyśmy to zrobić.
             pass
 
     # TODO: Implement later
@@ -28,8 +32,14 @@ class EvolutionaryAlgorithm:
         pass
 
     # TODO: Implement later
-    def generate_population(self):
-        pass
+    def generate_population(self, solution: Solution, dict_of_items_with_sellers, order_list):
+        population = []
+        for i in range(10):
+            if i == 1:
+                individual = solution.get_starting_solution(dict_of_items_with_sellers, order_list, 'left')
+            else:
+                individual = solution.get_starting_solution(dict_of_items_with_sellers, order_list, 'random')
+            population.append(individual)
 
 
 def mutate_castling(matrix, type='row'):
@@ -60,9 +70,10 @@ def crossover_chess(matrix1, matrix2):
     return matrix1, matrix2
 
 
-def mutate_circle(matrix):
-    m = len(matrix)   # ilość wierszy
-    n = len(matrix[0])   # ilość kolumn
+def mutate_circle(matrix: np.array):
+    # m = len(matrix)   # ilość wierszy
+    # n = len(matrix[0])   # ilość kolumn
+    m, n = np.shape(matrix)
     for i in range(m):
         for j in range(n):
             if j+1 >= n or i+1 >= m:
@@ -77,15 +88,16 @@ def mutate_circle(matrix):
     return matrix
 
 
-def crossover_halves(matrix1, matrix2, type='rows'):
+def crossover_halves(matrix1: np.array, matrix2: np.array, type='rows'):
     # m1 = len(matrix1)   # ilość wierszy
     # n1 = len(matrix1[0])   # ilość kolumn
     # m2 = len(matrix2)   # ilość wierszy
     # n2 = len(matrix2[0])   # ilość kolumn
     # if m1 != m2 or n1 != n2:
     #     return None
-    m = len(matrix1)
-    n = len(matrix1[0])
+    # m = len(matrix1)
+    # n = len(matrix1[0])
+    m, n = np.shape(matrix)
     if type == 'rows':
         for i in range(m):
             if i == m//2:
@@ -102,9 +114,10 @@ def crossover_halves(matrix1, matrix2, type='rows'):
         return matrix1, matrix2
 
 
-def crossover_every_2nd(matrix1, matrix2, type='rows'):
-    m = len(matrix1)
-    n = len(matrix1[0])
+def crossover_every_2nd(matrix1: np.array, matrix2: np.array, type='rows'):
+    # m = len(matrix1)
+    # n = len(matrix1[0])
+    m, n = np.shape(matrix)
     if type == 'rows':
         for i in range(0, m, 2):
             for j in range(n):
@@ -117,13 +130,13 @@ def crossover_every_2nd(matrix1, matrix2, type='rows'):
         return matrix1, matrix2
 
 
-matrix = [[1,2,3],[4,5,6],[7,8,9]]
-matrix1 = [[11,22,33],[44,55,66],[77,88,99]]
+matrix = np.array([[1,2,3],[4,5,6],[7,8,9]])
+matrix1 = np.array([[11,22,33],[44,55,66],[77,88,99]])
 matrix_rect = [[1,2,3],[4,5,6]]
 matrix_rect1 = [[11,22,33],[44,55,66]]
 matrix_2 = [[1,2],[3,4]]
 matrix_3 = [[5,6],[7,8]]
 
-# print(mutate_circle(matrix))
-print(crossover_every_2nd(matrix, matrix1, 'columns'))
+print(mutate_circle(matrix))
+# print(crossover_halves(matrix, matrix1, 'columns'))
 
