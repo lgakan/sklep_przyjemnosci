@@ -14,9 +14,11 @@ class EvolutionaryAlgorithm:
     # population - lista macierzy rozwiązań, możemy startowo przyjąć, że będzie ich 10
     def evolution(self, population: list):
         t = 0
+
         while True:
         # teraz niby w algorytmie jest, by ocenić populację. I jest pytanie czy chcemy oceniać od razu każdą z macierzy,
         # bo wsm nie wiem jak inaczej moglibyśmy to zrobić.
+        # Ja bym ocenił wszystkich i wybrał 2 najlepszych na rodziców
             pass
 
     # TODO: Implement later
@@ -40,6 +42,7 @@ class EvolutionaryAlgorithm:
             else:
                 individual = solution.get_starting_solution(dict_of_items_with_sellers, order_list, 'random')
             population.append(individual)
+        return population
 
 
 def mutate_castling(matrix, type='row'):
@@ -58,6 +61,12 @@ def mutate_castling(matrix, type='row'):
         for i in range(m):
             matrix[i][index_1], matrix[i][index_2] = matrix[i][index_2], matrix[i][index_1]
         return matrix
+
+def selection_tournament(population: list):
+    pass
+
+def selection_roulette(population: list):
+    pass
 
 
 def crossover_chess(matrix1, matrix2):
@@ -128,6 +137,8 @@ def crossover_every_2nd(matrix1: np.array, matrix2: np.array, type='rows'):
             for j in range(0, n, 2):
                 matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
         return matrix1, matrix2
+
+
 
 
 matrix = np.array([[1,2,3],[4,5,6],[7,8,9]])
