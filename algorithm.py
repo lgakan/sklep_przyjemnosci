@@ -65,6 +65,8 @@ def mutate_castling(matrix, type='row'):
             matrix[i][index_1], matrix[i][index_2] = matrix[i][index_2], matrix[i][index_1]
         return matrix
 
+# population - lista macierzy solution
+# amount - ile rodziców chcemy
 def selection_tournament(population: list, amount, budget):
     parents = []
     for matrix in population:
