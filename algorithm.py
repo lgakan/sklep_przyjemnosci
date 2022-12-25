@@ -2,6 +2,9 @@
 from solution import Solution
 from random import randint
 import numpy as np
+from objective_function import ObjFunction
+import random as rd
+
 
 class EvolutionaryAlgorithm:
 
@@ -62,11 +65,52 @@ def mutate_castling(matrix, type='row'):
             matrix[i][index_1], matrix[i][index_2] = matrix[i][index_2], matrix[i][index_1]
         return matrix
 
-def selection_tournament(population: list):
-    pass
+def selection_tournament(population: list, amount, budget):
+    parents = []
+    for matrix in population:
+        parents.append((get_penalty_func(matrix, budget), matrix))
+    parents_amount = amount * len(population)
+    while len(parents) > parents_amount:
+        for i in range(0, len(parents)//2, 2):
+            if parents[i][0] < parents[i+1][0]:
+                parents.remove(parents[i+1])
+            else:
+                parents.remove(parents[i])
+    for i in range(len(parents)):
+        parents[i] = parents[i][1]
+    return parents
 
-def selection_roulette(population: list):
-    pass
+def selection_roulette(population: list, amount, budget):
+    parents_amount = amount * len(population)
+    parents = []
+    for matrix in population:
+        parents.append([get_penalty_func(matrix, budget), matrix])
+    parents = sorted(parents)
+    length = len(parents)
+    for i in range(length):
+        parents[i].append(length-i)
+    new_list_of_solutions = []
+    for i in range(length):
+        for j in range(parents[i][2]):
+            new_list_of_solutions.append(parents[i][1])
+    rd.shuffle(new_list_of_solutions)
+    parents_chosen = new_list_of_solutions[:parents_amount]
+    return parents_chosen
+
+
+
+# amount - procent rodziców
+def selection_ranking(population: list, amount, budget):
+    parents = []
+    for matrix in population:
+        parents.append((get_penalty_func(matrix, budget), matrix))
+    parents = sorted(parents)
+    parents_amount = amount * len(population)
+    parents = parents[:parents_amount+1]
+    for i in range(parents_amount):
+        parents[i] = parents[i][1]
+    return parents
+
 
 
 def crossover_chess(matrix1, matrix2):
@@ -139,15 +183,28 @@ def crossover_every_2nd(matrix1: np.array, matrix2: np.array, type='rows'):
         return matrix1, matrix2
 
 
+def get_penalty_func(solution: ObjFunction, budget):
+    obj_func = solution.get_objective_func()
+    diff = obj_func - budget
+    if diff > 0:
+        return obj_func + 10*diff
+    else:
+        return obj_func
 
 
-matrix = np.array([[1,2,3],[4,5,6],[7,8,9]])
+
+
+
+
+
+
+matrix = [[[1,2,3],[4,5,6],[7,8,9]], [[11,22,33],[44,55,66],[77,88,99]], [[1,22,3],[4,55,6],[47,18,9]]]
 matrix1 = np.array([[11,22,33],[44,55,66],[77,88,99]])
-matrix_rect = [[1,2,3],[4,5,6]]
-matrix_rect1 = [[11,22,33],[44,55,66]]
-matrix_2 = [[1,2],[3,4]]
-matrix_3 = [[5,6],[7,8]]
+# matrix_rect = [[1,2,3],[4,5,6]]
+# matrix_rect1 = [[11,22,33],[44,55,66]]
+# matrix_2 = [[1,2],[3,4]]
+# matrix_3 = [[5,6],[7,8]]
 
-print(mutate_circle(matrix))
+# print(selection_ranking(matrix, 0.5, 200))
 # print(crossover_halves(matrix, matrix1, 'columns'))
 
