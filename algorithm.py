@@ -4,6 +4,24 @@ from random import randint
 import numpy as np
 from objective_function import ObjFunction
 import random as rd
+from client import Client
+from seller_base import SellersBase
+from general_inventory import GeneralInventory
+from copy import deepcopy
+
+main_inventory = GeneralInventory()
+main_sellers_base = SellersBase(main_inventory)
+main_client = Client(0, [('item_1', 7),
+                         ('item_2', 10),
+                         ('item_5', 2),
+                         ('item_6', 4),
+                         ('item_8', 6),
+                         ('item_9', 4),
+                         ('item_10', 1)], 800, main_inventory)
+sol = Solution(main_sellers_base.sellers_list, main_inventory.product_list)
+sol.get_starting_solution(main_sellers_base.get_sellers_with_items(main_client.get_product_ids()),
+                          main_client.get_oder_quantity(), 'random')
+sol_mat = deepcopy(sol.solution_matrix)
 
 
 class EvolutionaryAlgorithm:
@@ -194,10 +212,72 @@ def get_penalty_func(solution: ObjFunction, budget):
         return obj_func
 
 
+def mutate_singular_product(sol_matrix: np.array):
+    products_ordered = main_client.get_product_ids()
+    chosen_product = rd.choice(products_ordered)
+    print('Chosen product')
+    print(chosen_product)
+    dict_of_sellers = main_sellers_base.get_sellers_with_items(products_ordered)
+    sellers_for_chosen_product = dict_of_sellers[chosen_product]
+    row_of_chosen_product = deepcopy(sol_matrix[chosen_product])
+    print('Row of chosen products')
+    print(row_of_chosen_product)
+    calculations_for_mutation = {seller_id: quantity - row_of_chosen_product[seller_id]
+                                 for seller_id, quantity in sellers_for_chosen_product
+                                 if row_of_chosen_product[seller_id]}
+    print('Calculations for mutation')
+    print(calculations_for_mutation)
+    chosen_seller_to_give_up = rd.choice(list(calculations_for_mutation.keys()))
+    ready_for_mutation = {seller_id: quantity - row_of_chosen_product[seller_id]
+                          for seller_id, quantity in sellers_for_chosen_product
+                          if seller_id != chosen_seller_to_give_up}
+    print('Chosen seller to give up')
+    print(chosen_seller_to_give_up)
+    print('Ready for mutation')
+    print(ready_for_mutation)
+    candidates_for_mutation = [k for _, (k, v) in enumerate(ready_for_mutation.items())
+                               if v != 0 and k != chosen_seller_to_give_up]
+    print('Candidates for mutation')
+    print(candidates_for_mutation)
+    chosen_seller_to_receive = rd.choice(candidates_for_mutation)
+    print('Chosen seller to receive')
+    print(chosen_seller_to_receive)
+    sol_matrix[chosen_product][chosen_seller_to_give_up] -= 1
+    sol_matrix[chosen_product][chosen_seller_to_receive] += 1
+    return sol_matrix
 
 
-
-
+def mutate_with_seller_elimination(sol_matrix: np.array):
+    products_ordered = main_client.get_product_ids()
+    chosen_product = rd.choice(products_ordered)
+    print('Chosen product')
+    print(chosen_product)
+    dict_of_sellers = main_sellers_base.get_sellers_with_items(products_ordered)
+    sellers_for_chosen_product = dict_of_sellers[chosen_product]
+    row_of_chosen_product = deepcopy(sol_matrix[chosen_product])
+    print('Row of chosen products')
+    print(row_of_chosen_product)
+    calculation_for_mutation = {seller_id: amount for seller_id, amount in enumerate(row_of_chosen_product) if amount}
+    print('Calculation for mutation')
+    print(calculation_for_mutation)
+    chosen_seller_to_give_up = rd.choice(list(calculation_for_mutation.keys()))
+    print('Chosen to give')
+    print(chosen_seller_to_give_up)
+    list_with_max_quantities = [0 for _ in row_of_chosen_product]
+    for idx, amount in sellers_for_chosen_product:
+        if idx != chosen_seller_to_give_up:
+            list_with_max_quantities[idx] = amount
+    list_to_draw_from = [idx for (idx, amount) in sellers_for_chosen_product
+                         if idx != chosen_seller_to_give_up and amount != row_of_chosen_product[idx]]
+    while sol_matrix[chosen_product][chosen_seller_to_give_up] and list_to_draw_from:
+        print('Changing row')
+        print(sol_matrix[chosen_product])
+        sol_matrix[chosen_product][chosen_seller_to_give_up] -= 1
+        chosen_seller_to_receive = rd.choice(list_to_draw_from)
+        sol_matrix[chosen_product][chosen_seller_to_receive] += 1
+        if sol_matrix[chosen_product][chosen_seller_to_receive] == list_with_max_quantities[chosen_seller_to_receive]:
+            list_to_draw_from.remove(chosen_seller_to_receive)
+    return sol_matrix
 
 
 matrix = [[[1,2,3],[4,5,6],[7,8,9]], [[11,22,33],[44,55,66],[77,88,99]], [[1,22,3],[4,55,6],[47,18,9]]]
@@ -209,4 +289,5 @@ matrix1 = np.array([[11,22,33],[44,55,66],[77,88,99]])
 
 # print(selection_ranking(matrix, 0.5, 200))
 # print(crossover_halves(matrix, matrix1, 'columns'))
-
+print(sol)
+print(mutate_with_seller_elimination(sol_mat))
