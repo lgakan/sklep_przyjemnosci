@@ -1,6 +1,4 @@
 # functions needed to work out the final solution based on the evolutionary algorithm
-import copy
-
 from solution import Solution
 from random import randint, sample
 import numpy as np
@@ -11,6 +9,9 @@ from seller_base import SellersBase
 from general_inventory import GeneralInventory
 from copy import deepcopy
 
+population_size = 10
+selection_method = 'ranking'
+parent_percentage = 0.2
 main_inventory = GeneralInventory()
 main_sellers_base = SellersBase(main_inventory)
 main_client = Client(0, [('item_1', 7),
@@ -19,86 +20,27 @@ main_client = Client(0, [('item_1', 7),
                          ('item_6', 4),
                          ('item_8', 6),
                          ('item_9', 4),
-                         ('item_10', 1)], 800, main_inventory)
+                         ('item_10', 1)], 1600, main_inventory)
 sol = Solution(main_sellers_base.sellers_list, main_inventory.product_list)
-sol.get_starting_solution(main_sellers_base.get_sellers_with_items(main_client.get_product_ids()),
-                          main_client.get_oder_quantity(), 'random')
+dict_of_sells = main_sellers_base.get_sellers_with_items(main_client.get_product_ids())
+list_of_orders = main_client.get_oder_quantity()
+population = []
+for _ in range(population_size):
+    sol.get_starting_solution(dict_of_sells,
+                              list_of_orders,
+                              'random')
+    population.append(deepcopy(sol))
+    sol.reset_solution()
 sol_mat = deepcopy(sol.solution_matrix)
 
-
-
-class EvolutionaryAlgorithm:
-    def __init__(self, first_solution: Solution, stop_condition: callable, mutation_prob: float = 0.05):
-        self.first_solution = first_solution
-        self.stop_condition = stop_condition
-        self.mutation_prob = mutation_prob
-
-    # TODO: Implement later
-    # population - lista macierzy rozwiązań, możemy startowo przyjąć, że będzie ich 10
-    def evolution(self, population: list):
-        t = 0
-
-        while True:
-        # teraz niby w algorytmie jest, by ocenić populację. I jest pytanie czy chcemy oceniać od razu każdą z macierzy,
-        # bo wsm nie wiem jak inaczej moglibyśmy to zrobić.
-        # Ja bym ocenił wszystkich i wybrał 2 najlepszych na rodziców
-            pass
-
-    # TODO: Implement later
-        pass
-
-    # TODO: Implement later
-    def crossover(self):
-        pass
-
-    # TODO: Implement later    def mutation(self):
-    def selection(self):
-        pass
-
-    # TODO: Implement later
-    def generate_population(self, solution: Solution, dict_of_items_with_sellers, order_list):
-        population = []
-        for i in range(10):
-            if i == 1:
-                individual = solution.get_starting_solution(dict_of_items_with_sellers, order_list, 'left')
-            else:
-                individual = solution.get_starting_solution(dict_of_items_with_sellers, order_list, 'random')
-            population.append(individual)
-        return population
-
-
-def selection_tournament(population: list):
-    pass
-
-
-def selection_roulette(population: list):
-    pass
-
-
-def mutate_castling(matrix, type='row'):
-    m = len(matrix)
-    n = len(matrix[0])
-    if type == 'row':
-        pivot = m // 2
-        index_1 = randint(0, pivot-1)
-        index_2 = randint(pivot, m-1)
-        matrix[index_1], matrix[index_2] = matrix[index_2], matrix[index_1]
-        return matrix
-    if type == 'col':
-        pivot = n // 2
-        index_1 = randint(0, pivot-1)
-        index_2 = randint(pivot, m-1)
-        for i in range(m):
-            matrix[i][index_1], matrix[i][index_2] = matrix[i][index_2], matrix[i][index_1]
-        return matrix
 
 # population - lista macierzy solution
 # amount - ile rodziców chcemy
 def selection_tournament(population: list, amount, budget):
     parents = []
     for matrix in population:
-        parents.append((get_penalty_func(matrix, budget), matrix))
-    parents_amount = amount * len(population)
+        parents.append((get_penalty_func(ObjFunction(matrix, main_sellers_base, main_inventory), budget), matrix))
+    parents_amount = int(amount * len(population))
     while len(parents) > parents_amount:
         for i in range(0, len(parents)//2, 2):
             if parents[i][0] < parents[i+1][0]:
@@ -109,11 +51,12 @@ def selection_tournament(population: list, amount, budget):
         parents[i] = parents[i][1]
     return parents
 
+
 def selection_roulette(population: list, amount, budget):
-    parents_amount = amount * len(population)
+    parents_amount = int(amount * len(population))
     parents = []
     for matrix in population:
-        parents.append([get_penalty_func(matrix, budget), matrix])
+        parents.append([get_penalty_func(ObjFunction(matrix, main_sellers_base, main_inventory), budget), matrix])
     parents = sorted(parents)
     length = len(parents)
     for i in range(length):
@@ -127,15 +70,14 @@ def selection_roulette(population: list, amount, budget):
     return parents_chosen
 
 
-
 # amount - procent rodziców
 def selection_ranking(population: list, amount, budget):
     parents = []
     for matrix in population:
-        parents.append((get_penalty_func(matrix, budget), matrix))
+        parents.append((get_penalty_func(ObjFunction(matrix, main_sellers_base, main_inventory), budget), matrix))
     parents = sorted(parents)
-    parents_amount = amount * len(population)
-    parents = parents[:parents_amount+1]
+    parents_amount = int(amount * len(population))
+    parents = parents[:parents_amount]
     for i in range(parents_amount):
         parents[i] = parents[i][1]
     return parents
@@ -185,7 +127,7 @@ def crossover_halves(matrix1: np.array, matrix2: np.array, type='rows'):
     #     return None
     # m = len(matrix1)
     # n = len(matrix1[0])
-    m, n = np.shape(matrix)
+    m, n = np.shape(matrix1)
     if type == 'rows':
         for i in range(m):
             if i == m//2:
@@ -205,7 +147,7 @@ def crossover_halves(matrix1: np.array, matrix2: np.array, type='rows'):
 def crossover_every_2nd(matrix1: np.array, matrix2: np.array, type='rows'):
     # m = len(matrix1)
     # n = len(matrix1[0])
-    m, n = np.shape(matrix)
+    m, n = np.shape(matrix1)
     if type == 'rows':
         for i in range(0, m, 2):
             for j in range(n):
@@ -216,7 +158,6 @@ def crossover_every_2nd(matrix1: np.array, matrix2: np.array, type='rows'):
             for j in range(0, n, 2):
                 matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
         return matrix1, matrix2
-
 
 
 def crossover_chess(matrix1, matrix2):
@@ -242,43 +183,22 @@ def crossover_basic(matrix1, matrix2, order_length, choice='random'):
         if len(rows_idx_to_swap) == 0:
             return matrix1, matrix2
         else:
-            m1 = copy.deepcopy(matrix1)
-            m2 = copy.deepcopy(matrix2)
+            m1 = deepcopy(matrix1)
+            m2 = deepcopy(matrix2)
             for i in rows_idx_to_swap:
                 # TODO: SOLVE IT BETTER (Tuples don't work)
                 m1[i], m2[i] = matrix2[i], matrix1[i]
         return m1, m2
 
 
-def crossover_combination(matrix1, matrix2, number_of_rows, choice='random'):
-    m,n = np.shape(matrix1)
-    rows_idx_to_swap = None
-    if choice == 'random':
-        rows_idx_to_swap = sample([i for i in range(m)], number_of_rows-1)
-    elif choice == 'choice':
-        rows_idx_to_swap = input('Enter rows idx to swap in format: 0 2 4: ')
-        rows_idx_to_swap = rows_idx_to_swap.split(' ')
-        rows_idx_to_swap = [int(x) for x in rows_idx_to_swap]
-    if rows_idx_to_swap is not None:
-        if len(rows_idx_to_swap) == 0:
-            return matrix1, matrix2
-        else:
-            m1 = copy.deepcopy(matrix1)
-            m2 = copy.deepcopy(matrix2)
-            for i in rows_idx_to_swap:
-                # TODO: SOLVE IT BETTER (Tuples don't work)
-                m1[i], m2[i] = sample(matrix2[i], len(matrix2)), sample(matrix1[i], len(matrix1))
-        return m1, m2
-
-
-
 def get_penalty_func(solution: ObjFunction, budget):
     obj_func = solution.get_objective_func()
-    diff = obj_func - budget
+    diff = obj_func[0] - budget
     if diff > 0:
-        return obj_func + 10*diff
+        return obj_func[0] + 10*diff
     else:
-        return obj_func
+        return obj_func[0]
+
 
 def mutate_singular_product(sol_matrix: np.array):
     products_ordered = main_client.get_product_ids()
@@ -348,25 +268,39 @@ def mutate_with_seller_elimination(sol_matrix: np.array):
     return sol_matrix
 
 
-matrix = [[[1,2,3],[4,5,6],[7,8,9]], [[11,22,33],[44,55,66],[77,88,99]], [[1,22,3],[4,55,6],[47,18,9]]]
-matrix1 = np.array([[11,22,33],[44,55,66],[77,88,99]])
+def main():
+    starting_population = population
+    current_best_solution: Solution
+    if selection_method == 'tournament':
+        temp_population = selection_tournament(starting_population, parent_percentage, main_client.budget)
+    elif selection_method == 'roulette':
+        temp_population = selection_roulette(starting_population, parent_percentage, main_client.budget)
+    else:
+        temp_population = selection_ranking(starting_population, parent_percentage, main_client.budget)
+    current_best_solution = temp_population[0]
+    current_lowest_obj_func = get_penalty_func(ObjFunction(current_best_solution, main_sellers_base, main_inventory))
+
+# matrix = [[[1,2,3],[4,5,6],[7,8,9]], [[11,22,33],[44,55,66],[77,88,99]], [[1,22,3],[4,55,6],[47,18,9]]]
+# matrix1 = np.array([[11,22,33],[44,55,66],[77,88,99]])
 # matrix_rect = [[1,2,3],[4,5,6]]
 # matrix_rect1 = [[11,22,33],[44,55,66]]
 # matrix_2 = [[1,2],[3,4]]
 # matrix_3 = [[5,6],[7,8]]
 
 # crossover_basic(matrix, matrix1, 3, 1)
-print(matrix)
-print()
-print(matrix1)
-m1, m2 = crossover_basic(matrix, matrix1, 3, 'random')
-print()
-print(m1)
-print()
-print(m2)
+# matrix = np.array([[1,2,3],[4,5,6],[7,8,9]])
+# print(matrix)
+# print()
+# print(matrix1)
+# m1, m2 = crossover_basic(matrix, matrix1, 3, 'random')
+# print()
+# print(m1)
+# print()
+# print(m2)
 
 # print(mutate_circle(matrix))
 # print(selection_ranking(matrix, 0.5, 200))
 # print(crossover_halves(matrix, matrix1, 'columns'))
-print(sol)
-print(mutate_with_seller_elimination(sol_mat))
+# print(sol)
+# print(mutate_with_seller_elimination(sol_mat))
+print(selection_roulette(population, 0.2, main_client.budget))

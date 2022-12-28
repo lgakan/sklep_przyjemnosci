@@ -6,7 +6,6 @@ class Solution:
     def __init__(self, sellers, items):
         self.solution_matrix = None
         self.create_solution_matrix(len(sellers), len(items))
-        self.current_best = None
 
     def create_solution_matrix(self, size_s, size_i):
         self.solution_matrix = np.zeros((size_i, size_s), dtype=np.int)
@@ -36,11 +35,12 @@ class Solution:
                 for seller in sellers_chosen:
                     self.solution_matrix[product_row][seller] += 1
 
-    def get_currently_best_solution(self):
-        return self.current_best
-
     def get_solution_matrix_shape(self):
         return len(self.solution_matrix), len(self.solution_matrix[0])
+
+    def reset_solution(self):
+        for i, _ in enumerate(self.solution_matrix):
+            self.solution_matrix[i].fill(0)
 
     def __repr__(self):
         return self.solution_matrix.__str__()
