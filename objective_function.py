@@ -23,7 +23,6 @@ class ObjFunction:
                 if product > 0:
                     list_of_items.append((i, product))
             sj = self.seller_base.get_seller_by_id(str(j)).get_delivery_price(list_of_items)
-            print(f"Seller {j} delivery price: {sj}")
             new_prices = self.seller_base.get_seller_by_id(str(j)).get_discounted_price(list_of_items)
             column_values.append(sj + sum(new_prices))
 

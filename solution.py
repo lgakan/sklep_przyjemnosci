@@ -42,5 +42,8 @@ class Solution:
         for i, _ in enumerate(self.solution_matrix):
             self.solution_matrix[i].fill(0)
 
+    def get_solution_matrix(self):
+        return self.solution_matrix
+
     def __repr__(self):
         return self.solution_matrix.__str__()
