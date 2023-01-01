@@ -41,8 +41,6 @@ for _ in range(population_size):
 sol_mat = deepcopy(sol.solution_matrix)
 
 
-# population - lista macierzy solution
-# amount - ile rodziców chcemy
 # Returns:
 # 1. ObjFunction value for parents
 # 2. Parents Solutions
@@ -98,7 +96,6 @@ def selection_roulette(population: list, amount, budget):
            [i for _, i in parents_sorted]
 
 
-# amount - procent rodziców
 # Returns:
 # 1. ObjFunction value for parents
 # 2. Parents Solutions
@@ -107,12 +104,8 @@ def selection_roulette(population: list, amount, budget):
 def selection_ranking(population: list, amount, budget):
     parents = []
     for matrix in population:
-        try:
-            f = get_penalty_func(ObjFunction(matrix, main_sellers_base, main_inventory), budget)
-        except:
-            print('BAAAA')
         parents.append((get_penalty_func(ObjFunction(matrix, main_sellers_base, main_inventory), budget), matrix))
-    parents = sorted(parents)
+    parents.sort(key=lambda x: x[0])
     parents_amount = int(amount * len(population))
     parents_sorted = parents[population_size - parents_amount * (parents_amount - 1):]
     parents = parents[:parents_amount]
@@ -156,41 +149,32 @@ def selection_ranking(population: list, amount, budget):
 
 
 def crossover_halves(matrix1: np.array, matrix2: np.array, type_cross='rows'):
-    # m1 = len(matrix1)   # ilość wierszy
-    # n1 = len(matrix1[0])   # ilość kolumn
-    # m2 = len(matrix2)   # ilość wierszy
-    # n2 = len(matrix2[0])   # ilość kolumn
-    # if m1 != m2 or n1 != n2:
-    #     return None
+    m, n = np.shape(matrix1)
+    if type_cross == 'rows':
+        for i in range(m):
+            if type_cross == 'rows':
+                if i == m//2:
+                    break
+                for j in range(n):
+                    matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
+            elif type_cross == 'columns':
+                for j in range(n):
+                    if j == n // 2:
+                        break
+                    matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
+        return matrix1, matrix2
+
+
+def crossover_every_2nd(matrix1: np.array, matrix2: np.array, type_cross='rows'):
     # m = len(matrix1)
     # n = len(matrix1[0])
     m, n = np.shape(matrix1)
     if type_cross == 'rows':
-        for i in range(m):
-            if i == m//2:
-                break
-            for j in range(n):
-                matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
-        return matrix1, matrix2
-    elif type_cross == 'columns':
-        for i in range(m):
-            for j in range(n):
-                if j == n//2:
-                    break
-                matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
-        return matrix1, matrix2
-
-
-def crossover_every_2nd(matrix1: np.array, matrix2: np.array, type='rows'):
-    # m = len(matrix1)
-    # n = len(matrix1[0])
-    m, n = np.shape(matrix1)
-    if type == 'rows':
         for i in range(0, m, 2):
             for j in range(n):
                 matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
         return matrix1, matrix2
-    elif type == 'columns':
+    elif type_cross == 'columns':
         for i in range(m):
             for j in range(0, n, 2):
                 matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
@@ -239,29 +223,33 @@ def get_penalty_func(solution: ObjFunction, budget):
 
 def mutate_singular_product(sol_matrix: np.array):
     products_ordered = main_client.get_product_ids()
-    chosen_product = rd.choice(products_ordered)
-    # print('Chosen product')
-    # print(chosen_product)
-    dict_of_sellers = main_sellers_base.get_sellers_with_items(products_ordered)
-    sellers_for_chosen_product = dict_of_sellers[chosen_product]
-    row_of_chosen_product = deepcopy(sol_matrix[chosen_product])
-    # print('Row of chosen products')
-    # print(row_of_chosen_product)
-    calculations_for_mutation = {seller_id: quantity - row_of_chosen_product[seller_id]
-                                 for seller_id, quantity in sellers_for_chosen_product
-                                 if row_of_chosen_product[seller_id]}
-    # print('Calculations for mutation')
-    # print(calculations_for_mutation)
-    chosen_seller_to_give_up = rd.choice(list(calculations_for_mutation.keys()))
-    ready_for_mutation = {seller_id: quantity - row_of_chosen_product[seller_id]
-                          for seller_id, quantity in sellers_for_chosen_product
-                          if seller_id != chosen_seller_to_give_up}
-    # print('Chosen seller to give up')
-    # print(chosen_seller_to_give_up)
-    # print('Ready for mutation')
-    # print(ready_for_mutation)
-    candidates_for_mutation = [k for _, (k, v) in enumerate(ready_for_mutation.items())
-                               if v != 0 and k != chosen_seller_to_give_up]
+    candidates_for_mutation = []
+    chosen_product = None
+    chosen_seller_to_give_up = None
+    while not len(candidates_for_mutation):
+        chosen_product = rd.choice(products_ordered)
+        # print('Chosen product')
+        # print(chosen_product)
+        dict_of_sellers = main_sellers_base.get_sellers_with_items(products_ordered)
+        sellers_for_chosen_product = dict_of_sellers[chosen_product]
+        row_of_chosen_product = deepcopy(sol_matrix[chosen_product])
+        # print('Row of chosen products')
+        # print(row_of_chosen_product)
+        calculations_for_mutation = {seller_id: quantity - row_of_chosen_product[seller_id]
+                                     for seller_id, quantity in sellers_for_chosen_product
+                                     if row_of_chosen_product[seller_id]}
+        # print('Calculations for mutation')
+        # print(calculations_for_mutation)
+        chosen_seller_to_give_up = rd.choice(list(calculations_for_mutation.keys()))
+        ready_for_mutation = {seller_id: quantity - row_of_chosen_product[seller_id]
+                              for seller_id, quantity in sellers_for_chosen_product
+                              if seller_id != chosen_seller_to_give_up}
+        # print('Chosen seller to give up')
+        # print(chosen_seller_to_give_up)
+        # print('Ready for mutation')
+        # print(ready_for_mutation)
+        candidates_for_mutation = [k for _, (k, v) in enumerate(ready_for_mutation.items())
+                                   if v != 0 and k != chosen_seller_to_give_up]
     # print('Candidates for mutation')
     # print(candidates_for_mutation)
     chosen_seller_to_receive = rd.choice(candidates_for_mutation)
@@ -310,7 +298,7 @@ def main():
     i_iter = 1
     iter_counter = 0
     starting_population = general_population
-    current_best_solution: Solution
+    current_best_solution = None
     current_lowest_obj_func = np.inf
     while i_iter <= max_iters and iter_counter <= iters_without_change:
         if selection_method == 'tournament':
@@ -346,15 +334,15 @@ def main():
         else:
             baby1, baby2 = mutate_with_seller_elimination(np.array(baby1)), \
                            mutate_with_seller_elimination(np.array(baby2))
-        sol.solution_matrix = baby1
+        sol.solution_matrix = deepcopy(baby1)
         offspring = [(get_penalty_func(ObjFunction(sol, main_sellers_base, main_inventory), main_client.budget),
                       deepcopy(sol))]
         sol.reset_solution()
-        sol.solution_matrix = baby2
+        sol.solution_matrix = deepcopy(baby2)
         offspring.append((get_penalty_func(ObjFunction(sol, main_sellers_base, main_inventory), main_client.budget),
                           deepcopy(sol)))
         sol.reset_solution()
-        offspring = sorted(offspring)
+        offspring.sort(key=lambda x: x[0])
         k = 0
         offspring_count = len(offspring)
         for func_i, offspring_i in offspring:
@@ -380,8 +368,9 @@ def main():
         iter_counter += 1
         obj_functions_to_plot.append(current_lowest_obj_func)
         print(i_iter)
+    print(current_best_solution)
     plt.figure()
-    plt.plot(np.arange(i_iter), obj_functions_to_plot)
+    plt.plot(np.arange(i_iter - 1), obj_functions_to_plot)
     plt.show()
 
 
