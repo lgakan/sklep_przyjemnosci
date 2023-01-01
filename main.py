@@ -2,7 +2,6 @@ from client import Client
 from general_inventory import GeneralInventory
 from individual import Individual
 from seller_base import SellersBase
-from objective_function import ObjFunction
 import matplotlib.pyplot as plt
 import numpy as np
 import random as rd

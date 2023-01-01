@@ -1,12 +1,11 @@
 import numpy as np
 import random as rd
-from objective_function import ObjFunction
 
 
 class Individual:
-    def __init__(self, sellers, items, main_sellers_base, main_inventory):
+    def __init__(self, sellers, items):
         self.individual_matrix = np.zeros((len(sellers), len(items)), dtype=np.int)
-        self.fitness_func_value = self.get_individual_fitness_func(main_sellers_base, main_inventory)
+        self.fitness_func_value = None
 
     def get_starting_individual(self, dict_of_items_with_sellers, order_list, construct_type: str):
         if construct_type == 'left':
@@ -43,15 +42,20 @@ class Individual:
     def get_individual_matrix(self):
         return self.individual_matrix
 
-    def get_individual_fitness_func(self, main_sellers_base, main_inventory):
-        obj_func = ObjFunction(main_sellers_base, main_inventory)
-        return obj_func.get_objective_func(self.get_individual_matrix())
+    def get_individual_fitness_func(self):
+        return self.fitness_func_value
+
+    def set_individual_matrix(self, matrix):
+        self.individual_matrix = matrix
+
+    def set_individual_fitness_func_val(self, individual_fitness_func_val):
+        self.fitness_func_value = individual_fitness_func_val
 
     def __gt__(self, other):
-        return True if self.fitness_func_value > other.fitness_func_value else False
+        return self.fitness_func_value > other.fitness_func_value
 
     def __lt__(self, other):
-        return True if self.fitness_func_value < other.fitness_func_value else False
+        return self.fitness_func_value < other.fitness_func_value
 
     def __repr__(self):
         return self.individual_matrix.__str__()

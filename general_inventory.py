@@ -38,10 +38,3 @@ class GeneralInventory:
         for line in self.product_list:
             product_list += f'{line}\n'
         return product_list
-
-    # TODO: Implement later
-    # def add_product_to_inventory(self):
-
-
-    # def get_all_unique_products(self):
-    #     return self.file_reader.get_column_from_file('unique_product')
