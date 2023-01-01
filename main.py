@@ -1,6 +1,6 @@
 from client import Client
 from general_inventory import GeneralInventory
-from solution import Solution
+from individual import Individual
 from seller_base import SellersBase
 from objective_function import ObjFunction
 import matplotlib.pyplot as plt
@@ -24,8 +24,8 @@ def main():
     print(my_own_self)
 
     # Generating empty matrix based on amount of sellers and products in inventory
-    my_solution = Solution(sellers=my_sellers_base.sellers_list, items=my_inventory.product_list)
-    print(f'Solution matrix of zeros:\n{my_solution.solution_matrix}')
+    my_solution = Individual(sellers=my_sellers_base.sellers_list, items=my_inventory.product_list)
+    print(f'Solution matrix of zeros:\n{my_solution.individual_matrix}')
 
     # Plotting delivery functions
     # plt.figure()
@@ -68,8 +68,8 @@ def main():
     # print(f'Total cost calculated for this solution: {total_cost}')
     # print(f'Total costs for each seller in corresponding order: {partial_costs}')
 
-    my_solution.get_starting_solution(my_sellers_base.get_sellers_with_items(my_own_self.get_product_ids()),
-                                      my_own_self.get_oder_quantity(),
+    my_solution.get_starting_individual(my_sellers_base.get_sellers_with_items(my_own_self.get_product_ids()),
+                                        my_own_self.get_oder_quantity(),
                                       'random')
     print(my_solution)
 

@@ -1,5 +1,5 @@
 # functions needed to work out the final solution based on the evolutionary algorithm
-from solution import Solution
+from individual import Individual
 # from random import randint
 from random import sample
 import numpy as np
@@ -10,35 +10,6 @@ from seller_base import SellersBase
 from general_inventory import GeneralInventory
 from copy import deepcopy
 import matplotlib.pyplot as plt
-
-population_size = 10
-selection_method = 'ranking'
-# Parent_count*(Parent_count - 1) < Population_size
-parent_percentage = 0.2
-chance_to_crossover = 0.5
-mutation_type = 'singular'
-max_iters = 100
-iters_without_change = 15
-main_inventory = GeneralInventory()
-main_sellers_base = SellersBase(main_inventory)
-main_client = Client(0, [('item_1', 7),
-                         ('item_2', 10),
-                         ('item_5', 2),
-                         ('item_6', 4),
-                         ('item_8', 6),
-                         ('item_9', 4),
-                         ('item_10', 1)], 1600, main_inventory)
-sol = Solution(main_sellers_base.sellers_list, main_inventory.product_list)
-dict_of_sells = main_sellers_base.get_sellers_with_items(main_client.get_product_ids())
-list_of_orders = main_client.get_oder_quantity()
-general_population = []
-for _ in range(population_size):
-    sol.get_starting_solution(dict_of_sells,
-                              list_of_orders,
-                              'random')
-    general_population.append(deepcopy(sol))
-    sol.reset_solution()
-sol_mat = deepcopy(sol.solution_matrix)
 
 
 # population - lista macierzy solution
@@ -51,14 +22,14 @@ sol_mat = deepcopy(sol.solution_matrix)
 def selection_tournament(population: list, amount, budget):
     parents = []
     for matrix in population:
-        parents.append((get_penalty_func(ObjFunction(matrix, main_sellers_base, main_inventory), budget), matrix))
+        parents.append((get_penalty_func(ObjFunction(main_sellers_base, main_inventory), matrix, budget), matrix))
     parents_sorted = deepcopy(sorted(parents))
     parents_amount = int(amount * population_size)
     parents_sorted = parents_sorted[population_size - parents_amount * (parents_amount - 1):]
     while len(parents) > parents_amount:
-        for i in range(0, len(parents)//2, 2):
-            if parents[i][0] < parents[i+1][0]:
-                parents.remove(parents[i+1])
+        for i in range(0, len(parents) // 2, 2):
+            if parents[i][0] < parents[i + 1][0]:
+                parents.remove(parents[i + 1])
             else:
                 parents.remove(parents[i])
     return [i for i, _ in parents], \
@@ -76,13 +47,13 @@ def selection_roulette(population: list, amount, budget):
     parents_amount = int(amount * population_size)
     parents = []
     for matrix in population:
-        parents.append([get_penalty_func(ObjFunction(matrix, main_sellers_base, main_inventory), budget), matrix])
+        parents.append([get_penalty_func(ObjFunction(main_sellers_base, main_inventory), matrix, budget), matrix])
     parents = sorted(parents)
     parents_sorted = deepcopy(parents)
     parents_sorted = parents_sorted[population_size - parents_amount * (parents_amount - 1):]
     length = population_size
     for i in range(length):
-        parents[i].append(length-i)
+        parents[i].append(length - i)
     new_list_of_solutions = []
     for i in range(length):
         for j in range(parents[i][2]):
@@ -104,14 +75,15 @@ def selection_roulette(population: list, amount, budget):
 # 2. Parents Solutions
 # 3. ObjFunction value for worst members
 # 4. Worst members Solutions
+# TODO: Is this really necessary to calculate "ObjFunction(matrix, main_sellers_base, main_inventory), budget)" twice?
 def selection_ranking(population: list, amount, budget):
     parents = []
     for matrix in population:
         try:
-            f = get_penalty_func(ObjFunction(matrix, main_sellers_base, main_inventory), budget)
+            f = get_penalty_func(ObjFunction(main_sellers_base, main_inventory), matrix.get_individual_matrix(), budget)
         except:
-            print('BAAAA')
-        parents.append((get_penalty_func(ObjFunction(matrix, main_sellers_base, main_inventory), budget), matrix))
+            print('Penalty function failed')
+        parents.append((get_penalty_func(ObjFunction(main_sellers_base, main_inventory), matrix.get_individual_matrix(), budget), matrix))
     parents = sorted(parents)
     parents_amount = int(amount * len(population))
     parents_sorted = parents[population_size - parents_amount * (parents_amount - 1):]
@@ -156,18 +128,10 @@ def selection_ranking(population: list, amount, budget):
 
 
 def crossover_halves(matrix1: np.array, matrix2: np.array, type_cross='rows'):
-    # m1 = len(matrix1)   # ilość wierszy
-    # n1 = len(matrix1[0])   # ilość kolumn
-    # m2 = len(matrix2)   # ilość wierszy
-    # n2 = len(matrix2[0])   # ilość kolumn
-    # if m1 != m2 or n1 != n2:
-    #     return None
-    # m = len(matrix1)
-    # n = len(matrix1[0])
     m, n = np.shape(matrix1)
     if type_cross == 'rows':
         for i in range(m):
-            if i == m//2:
+            if i == m // 2:
                 break
             for j in range(n):
                 matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
@@ -175,22 +139,20 @@ def crossover_halves(matrix1: np.array, matrix2: np.array, type_cross='rows'):
     elif type_cross == 'columns':
         for i in range(m):
             for j in range(n):
-                if j == n//2:
+                if j == n // 2:
                     break
                 matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
         return matrix1, matrix2
 
 
-def crossover_every_2nd(matrix1: np.array, matrix2: np.array, type='rows'):
-    # m = len(matrix1)
-    # n = len(matrix1[0])
+def crossover_every_2nd(matrix1: np.array, matrix2: np.array, creation_type='rows'):
     m, n = np.shape(matrix1)
-    if type == 'rows':
+    if creation_type == 'rows':
         for i in range(0, m, 2):
             for j in range(n):
                 matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
         return matrix1, matrix2
-    elif type == 'columns':
+    elif creation_type == 'columns':
         for i in range(m):
             for j in range(0, n, 2):
                 matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
@@ -211,7 +173,7 @@ def crossover_basic(matrix1, matrix2, order_length, choice='random'):
     m, n = np.shape(matrix1)
     rows_idx_to_swap = None
     if choice == 'random':
-        rows_idx_to_swap = sample([i for i in range(m)], order_length-1)
+        rows_idx_to_swap = sample([i for i in range(m)], order_length - 1)
     elif choice == 'choice':
         rows_idx_to_swap = input('Enter rows idx to swap in format: 0 2 4: ')
         rows_idx_to_swap = rows_idx_to_swap.split(' ')
@@ -228,11 +190,11 @@ def crossover_basic(matrix1, matrix2, order_length, choice='random'):
         return m1, m2
 
 
-def get_penalty_func(solution: ObjFunction, budget):
-    obj_func = solution.get_objective_func()
+def get_penalty_func(objfunction: ObjFunction, matrix,  budget):
+    obj_func = objfunction.get_objective_func(matrix)
     diff = obj_func[0] - budget
     if diff > 0:
-        return obj_func[0] + 10*diff
+        return obj_func[0] + 10 * diff
     else:
         return obj_func[0]
 
@@ -305,12 +267,34 @@ def mutate_with_seller_elimination(sol_matrix: np.array):
     return sol_matrix
 
 
+population_size = 10
+selection_method = 'ranking'
+parent_percentage = 0.2
+chance_to_crossover = 0.5
+mutation_type = 'singular'
+max_iters = 100
+iters_without_change = 15
+main_inventory = GeneralInventory()
+main_sellers_base = SellersBase(main_inventory)
+main_client = Client(0, [('item_1', 7), ('item_2', 10), ('item_5', 2), ('item_6', 4), ('item_8', 6), ('item_9', 4),
+                         ('item_10', 1)], 1600, main_inventory)
+individual = Individual(main_sellers_base.sellers_list, main_inventory.product_list, main_sellers_base, main_inventory)
+dict_of_sells = main_sellers_base.get_sellers_with_items(main_client.get_product_ids())
+list_of_orders = main_client.get_oder_quantity()
+general_population = []
+for _ in range(population_size):
+    individual.get_starting_individual(dict_of_sells, list_of_orders, 'random')
+    general_population.append(deepcopy(individual))
+    individual.reset_individual()
+sol_mat = deepcopy(individual.individual_matrix)
+
+
 def main():
     obj_functions_to_plot = []
     i_iter = 1
     iter_counter = 0
     starting_population = general_population
-    current_best_solution: Solution
+    # current_best_solution: Solution
     current_lowest_obj_func = np.inf
     while i_iter <= max_iters and iter_counter <= iters_without_change:
         if selection_method == 'tournament':
@@ -327,33 +311,36 @@ def main():
             if i_iter == 1:
                 current_lowest_obj_func = min(obj_funcs)
                 current_best_solution = temp_pop[obj_funcs.index(current_lowest_obj_func)]
-        else:
+        elif selection_method == 'ranking':
             obj_funcs, temp_pop, worst_funcs, comparison_pop = selection_ranking(starting_population,
                                                                                  parent_percentage,
                                                                                  main_client.budget)
             if i_iter == 1:
                 current_lowest_obj_func = obj_funcs[0]
                 current_best_solution = temp_pop[0]
+        else:
+            obj_funcs, temp_pop, worst_funcs, comparison_pop = [None] * 4
+            return None
 
         if rd.random() > chance_to_crossover:
-            baby1, baby2 = crossover_basic(temp_pop[0].get_solution_matrix(),
-                                           temp_pop[1].get_solution_matrix(),
+            baby1, baby2 = crossover_basic(temp_pop[0].get_individual_matrix(),
+                                           temp_pop[1].get_individual_matrix(),
                                            len(main_client.get_order()))
         else:
-            baby1, baby2 = temp_pop[0].get_solution_matrix(), temp_pop[1].get_solution_matrix()
+            baby1, baby2 = temp_pop[0].get_individual_matrix(), temp_pop[1].get_individual_matrix()
         if mutation_type == 'singular':
             baby1, baby2 = mutate_singular_product(np.array(baby1)), mutate_singular_product(np.array(baby2))
         else:
             baby1, baby2 = mutate_with_seller_elimination(np.array(baby1)), \
                            mutate_with_seller_elimination(np.array(baby2))
-        sol.solution_matrix = baby1
-        offspring = [(get_penalty_func(ObjFunction(sol, main_sellers_base, main_inventory), main_client.budget),
-                      deepcopy(sol))]
-        sol.reset_solution()
-        sol.solution_matrix = baby2
-        offspring.append((get_penalty_func(ObjFunction(sol, main_sellers_base, main_inventory), main_client.budget),
-                          deepcopy(sol)))
-        sol.reset_solution()
+        individual.individual_matrix = baby1
+        offspring = [(get_penalty_func(ObjFunction(main_sellers_base, main_inventory), baby1, main_client.budget),
+                      deepcopy(individual))]
+        individual.reset_individual()
+        individual.individual_matrix = baby2
+        offspring.append((get_penalty_func(ObjFunction(main_sellers_base, main_inventory), baby2, main_client.budget),
+                          deepcopy(individual)))
+        individual.reset_individual()
         offspring = sorted(offspring)
         k = 0
         offspring_count = len(offspring)
@@ -381,7 +368,7 @@ def main():
         obj_functions_to_plot.append(current_lowest_obj_func)
         print(i_iter)
     plt.figure()
-    plt.plot(np.arange(i_iter), obj_functions_to_plot)
+    plt.plot(np.arange(1, i_iter), obj_functions_to_plot)
     plt.show()
 
 

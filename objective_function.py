@@ -2,24 +2,25 @@ from seller_base import SellersBase
 from general_inventory import GeneralInventory
 from delivery_functionality import Delivery
 from client import Client
-from solution import Solution
+# from individual import Individual
 
 
+# TODO: Consider to change ObjFunction class into function
 class ObjFunction:
-
-    def __init__(self, solution: Solution, seller_base: SellersBase, general_inventory: GeneralInventory):
-        self.solution = solution
+    # TODO: Why objFunction class has individual (old solution) attribute?
+    # edit: Teraz juz nie ma ale narazie tylko dla testow - zostal przerzucony do parametru metody get
+    def __init__(self, seller_base: SellersBase, general_inventory: GeneralInventory):
         self.seller_base = seller_base
         self.general_inventory = general_inventory
         self.value = None
 
-    def get_objective_func(self):
-        n, m = self.solution.get_solution_matrix_shape()
+    def get_objective_func(self, individual_matrix):
+        n, m = len(individual_matrix), len(individual_matrix[0])
         column_values = []
         for j in range(m):
             list_of_items = []
             for i in range(n):
-                product = self.solution.solution_matrix[i][j]
+                product = individual_matrix[i][j]
                 if product > 0:
                     list_of_items.append((i, product))
             sj = self.seller_base.get_seller_by_id(str(j)).get_delivery_price(list_of_items)
