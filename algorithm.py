@@ -1,6 +1,6 @@
 # functions needed to work out the final solution based on the evolutionary algorithm
 from solution import Solution
-# from random import randint
+from random import randint
 from random import sample
 import numpy as np
 from objective_function import ObjFunction
@@ -194,12 +194,15 @@ def crossover_chess(matrix1, matrix2):
 def crossover_basic(matrix1, matrix2, order_length, choice='random'):
     m, n = np.shape(matrix1)
     rows_idx_to_swap = None
+    cols_idx_to_swap = None
     if choice == 'random':
-        rows_idx_to_swap = sample([i for i in range(m)], order_length-1)
+        rows_idx_to_swap = sample([i for i in range(m)], randint(1, order_length-1))
+        cols_idx_to_swap = sample([i for i in range(n)], len(rows_idx_to_swap))
     elif choice == 'choice':
         rows_idx_to_swap = input('Enter rows idx to swap in format: 0 2 4: ')
         rows_idx_to_swap = rows_idx_to_swap.split(' ')
         rows_idx_to_swap = [int(x) for x in rows_idx_to_swap]
+        cols_idx_to_swap = sample([i for i in range(n)], len(rows_idx_to_swap))
     if rows_idx_to_swap is not None:
         if len(rows_idx_to_swap) == 0:
             return matrix1, matrix2
@@ -207,8 +210,8 @@ def crossover_basic(matrix1, matrix2, order_length, choice='random'):
             m1 = deepcopy(matrix1)
             m2 = deepcopy(matrix2)
             for i in rows_idx_to_swap:
-                # TODO: SOLVE IT BETTER (Tuples don't work)
-                m1[i], m2[i] = matrix2[i], matrix1[i]
+                for j in cols_idx_to_swap:
+                    m1[i, j], m2[i, j] = matrix2[i, j], matrix1[i, j]
         return m1, m2
 
 
