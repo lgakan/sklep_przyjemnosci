@@ -50,7 +50,8 @@ def selection_tournament(population: list, amount, budget):
     parents = []
     for matrix in population:
         parents.append((get_penalty_func(ObjFunction(matrix, main_sellers_base, main_inventory), budget), matrix))
-    parents_sorted = deepcopy(sorted(parents))
+    parents_sorted = deepcopy(parents)
+    parents_sorted.sort(key=lambda x: x[0])
     parents_amount = int(amount * population_size)
     parents_sorted = parents_sorted[population_size - parents_amount * (parents_amount - 1):]
     while len(parents) > parents_amount:
@@ -75,7 +76,7 @@ def selection_roulette(population: list, amount, budget):
     parents = []
     for matrix in population:
         parents.append([get_penalty_func(ObjFunction(matrix, main_sellers_base, main_inventory), budget), matrix])
-    parents = sorted(parents)
+    parents.sort(key=lambda x: x[0])
     parents_sorted = deepcopy(parents)
     parents_sorted = parents_sorted[population_size - parents_amount * (parents_amount - 1):]
     length = population_size

@@ -1,0 +1,61 @@
+----
+1. Zależność ilości iteracji od rozmiaru populacji
+1.1. Ująć w 3 różnych przypadkach parent percentage
+
+----
+2. Zależność ilości iteracji od parent percentage
+2.1. Ująć w 3 różnych przypadkach rozmiaru populacji
+
+----
+1 + 2 można ująć razem, tylko z dwóch perspektyw (wspólna tabela a wnioski dla obu aspektów)
+
+++++ Mateusz
+3. Ilość iteracji i jakość rozwiązania od metody selekcji
+
++-+- Łukasz
+4. Ilość iteracji i jakość rozwiązania od metody krzyżowania
+
+++++ Wiktor
+5. Ilość iteracji i jakość rozwiązania od metody mutacji
+
+----
+3 + 4 + 5 dla jednakowego rozmiaru populacji i parent percentage - na podstawie wyników należy wskazać i przetestować najgorszy spodziewany scenariusz i najlepszy
+
+----
+6. Najgorszy spodziewany scenariusz (kombinacja 3,4,5) + weryfikacja
+
+----
+7. Najlepszy spodziewany scenariusz (kombinacja 3,4,5) + weryfikacja
+
+----
+6 + 7 może się okazać że one wcale nie są przypadkami granicznymi, a wtedy trzeba będzie je znaleźć ręcznie i pokazać w testach
+
+----
+7* Najgorsze faktyczne i 7** Najlepsze faktyczne
+
+++++ Mateusz
+8. Ilość iteracji i jakość rozwiązania od rozmiaru problemu - rozmiaru listy zakupów
+
+8.1. Ująć mało przedmiotów unikalnych ale duże ilości
+
+8.2. Ująć dużo przedmiotów unikalnych ale małe ilości
+
+8.3. Jak ilość przedmiotów unikalnych wpływa ogółem (np. im więcej przedmiotów, tym więcej iteracji potrzebne)
+
+++++ Wiktor
+9. Dwa rodzaje mutacji dla dużej i małej ilości produktów w liście (pewnie mutacja z eliminacją lepiej będzie działać dla dużej ilości niż jednostkowa)
+
+++++ Łukasz
+10. Złożoność czasowa od rozmiaru problemu
+
+----
+1-10 Zaproponowanie najlepszych wartości parametrów dla 3 różnych list zakupów
+
+++++ Wiktor
+11. Przypadek ze znanym rozwiązaniem - jeden sprzedawca posiada wszystkie produkty w najniższych cenach
+
+????
+****12. Przypadek złośliwy - każdy sprzedawca posiada przedmiot w bardzo niskiej cenie w porównaniu do innych a reszta super droga
+
+++++ Łukasz
+13. Ilość iteracji i jakość rozwiązania od szansy na krzyżowanie
