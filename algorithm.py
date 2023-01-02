@@ -191,28 +191,44 @@ def crossover_chess(matrix1, matrix2):
 
 
 # example of oder_list [('item_15', 7), ('item_16', 10)]
-def crossover_basic(matrix1, matrix2, order_length, choice='random'):
-    m, n = np.shape(matrix1)
+def crossover_basic(numpy_matrices_list: list, order_length: int, choice='random', mode="rows_idx_and_number"):
+    m, n = np.shape(numpy_matrices_list[0])
     rows_idx_to_swap = None
-    cols_idx_to_swap = None
     if choice == 'random':
-        rows_idx_to_swap = sample([i for i in range(m)], randint(1, order_length-1))
-        cols_idx_to_swap = sample([i for i in range(n)], len(rows_idx_to_swap))
+        if mode == 'rows_idx':
+            rows_idx_to_swap = sample([i for i in range(m)],  order_length // 2)
+        if mode == 'rows_number':
+            rows_idx_to_swap = sample([i for i in range(0, m, 2)], randint(1, order_length-1))
+        if mode == 'rows_idx_and_number':
+            rows_idx_to_swap = sample([i for i in range(m)], randint(1, order_length - 1))
     elif choice == 'choice':
-        rows_idx_to_swap = input('Enter rows idx to swap in format: 0 2 4: ')
-        rows_idx_to_swap = rows_idx_to_swap.split(' ')
-        rows_idx_to_swap = [int(x) for x in rows_idx_to_swap]
-        cols_idx_to_swap = sample([i for i in range(n)], len(rows_idx_to_swap))
+        if mode == 1:
+            rows_idx_to_swap = input('Enter rows idx to swap in format: 0 2 4: ')
+            rows_idx_to_swap = rows_idx_to_swap.split(' ')
+            rows_idx_to_swap = [int(x) for x in rows_idx_to_swap]
+            rows_idx_to_swap = list(set(rows_idx_to_swap))
+            if len(rows_idx_to_swap) > m:
+                rows_idx_to_swap = rows_idx_to_swap[0:m]
+            for i in range(len(rows_idx_to_swap)):
+                if rows_idx_to_swap[i] >= m:
+                    rows_idx_to_swap[i] = m-1
+            rows_idx_to_swap = list(set(rows_idx_to_swap))
     if rows_idx_to_swap is not None:
         if len(rows_idx_to_swap) == 0:
-            return matrix1, matrix2
+            return numpy_matrices_list
         else:
-            m1 = deepcopy(matrix1)
-            m2 = deepcopy(matrix2)
-            for i in rows_idx_to_swap:
-                for j in cols_idx_to_swap:
-                    m1[i, j], m2[i, j] = matrix2[i, j], matrix1[i, j]
-        return m1, m2
+            list_to_return = []
+            matrices_list = [i.tolist() for i in numpy_matrices_list]
+            for i in range(len(matrices_list)):
+                for j in range(i, len(matrices_list)):
+                    if i != j:
+                        m1 = matrices_list[i]
+                        m2 = matrices_list[j]
+                        for x in rows_idx_to_swap:
+                            m1[x], m2[x] = m2[x], m1[x]
+                        list_to_return.append(m1)
+                        list_to_return.append(m2)
+            return [np.array(i) for i in list_to_return]
 
 
 def get_penalty_func(solution: ObjFunction, budget):
@@ -327,24 +343,19 @@ def main():
                 current_best_solution = temp_pop[0]
 
         if rd.random() > chance_to_crossover:
-            baby1, baby2 = crossover_basic(temp_pop[0].get_solution_matrix(),
-                                           temp_pop[1].get_solution_matrix(),
-                                           len(main_client.get_order()))
+            baby_matrices = crossover_basic([i.get_solution_matrix() for i in temp_pop], len(main_client.get_order()))
         else:
-            baby1, baby2 = temp_pop[0].get_solution_matrix(), temp_pop[1].get_solution_matrix()
+            baby_matrices = [i.get_solution_matrix() for i in temp_pop]
         if mutation_type == 'singular':
-            baby1, baby2 = mutate_singular_product(np.array(baby1)), mutate_singular_product(np.array(baby2))
+            baby_matrices = [mutate_singular_product(np.array(i)) for i in baby_matrices]
         else:
-            baby1, baby2 = mutate_with_seller_elimination(np.array(baby1)), \
-                           mutate_with_seller_elimination(np.array(baby2))
-        sol.solution_matrix = deepcopy(baby1)
-        offspring = [(get_penalty_func(ObjFunction(sol, main_sellers_base, main_inventory), main_client.budget),
-                      deepcopy(sol))]
-        sol.reset_solution()
-        sol.solution_matrix = deepcopy(baby2)
-        offspring.append((get_penalty_func(ObjFunction(sol, main_sellers_base, main_inventory), main_client.budget),
-                          deepcopy(sol)))
-        sol.reset_solution()
+            baby_matrices = [mutate_with_seller_elimination(np.array(i)) for i in baby_matrices]
+        offspring = []
+        for baby in baby_matrices:
+            sol.solution_matrix = deepcopy(baby)
+            offspring.append((get_penalty_func(ObjFunction(sol, main_sellers_base, main_inventory), main_client.budget),
+                              deepcopy(sol)))
+            sol.reset_solution()
         offspring.sort(key=lambda x: x[0])
         k = 0
         offspring_count = len(offspring)
