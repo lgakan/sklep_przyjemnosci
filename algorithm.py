@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 population_size = 10
 selection_method = 'ranking'
 # Parent_count*(Parent_count - 1) < Population_size
-parent_percentage = 0.2
+parent_percentage = 0.3
 chance_to_crossover = 0.5
 mutation_type = 'singular'
 max_iters = 100
@@ -228,7 +228,7 @@ def crossover_basic(numpy_matrices_list: list, order_length: int, choice='random
                             m1[x], m2[x] = m2[x], m1[x]
                         list_to_return.append(m1)
                         list_to_return.append(m2)
-            return [np.array(i) for i in list_to_return]
+            return [np.array(i) for i in list_to_return[0:len(matrices_list)]]
 
 
 def get_penalty_func(solution: ObjFunction, budget):
