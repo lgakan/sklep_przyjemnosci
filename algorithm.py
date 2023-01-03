@@ -314,7 +314,7 @@ def mutate_with_seller_elimination(sol_matrix: np.array):
 def create_report(csv_path: str, ordered_data: list):
     with open(csv_path, 'a', newline='') as file:
         # for clean view in Excel, you need to add , delimiter=';'
-        writer_object = csv.writer(file)
+        writer_object = csv.writer(file, delimiter=';')
         writer_object.writerow(ordered_data)
 
 
@@ -322,7 +322,7 @@ def main():
     obj_functions_to_plot = []
     i_iter = 1
     iter_counter = 0
-    starting_population = general_population  # mój pomysł - tworzenie tego za pomocą funkcji, wtedy łatwiej w testach
+    starting_population = deepcopy(general_population)  # mój pomysł - tworzenie tego za pomocą funkcji, wtedy łatwiej w testach
     current_best_solution = None
     current_lowest_obj_func = np.inf
     while i_iter <= max_iters and iter_counter <= iters_without_change:
@@ -371,12 +371,12 @@ def main():
                 if k == offspring_count:
                     break
             if k != offspring_count:
-                general_population.remove(comparison_pop[-1])
+                starting_population.remove(comparison_pop[-1])
                 worst_funcs.insert(k, func_i)
                 worst_funcs.pop()
                 comparison_pop.insert(k, offspring_i)
                 comparison_pop.pop()
-                general_population.append(comparison_pop[k])
+                starting_population.append(comparison_pop[k])
 
                 if func_i < current_lowest_obj_func:
                     iter_counter = 0
@@ -389,9 +389,9 @@ def main():
         obj_functions_to_plot.append(current_lowest_obj_func)
         # print(i_iter)
     # print(current_best_solution)
-    plt.figure()
-    plt.plot(np.arange(i_iter - 1), obj_functions_to_plot)
-    plt.show()
+    # plt.figure()
+    # plt.plot(np.arange(i_iter - 1), obj_functions_to_plot)
+    # plt.show()
     # general_population = general_population_copy #ewentualnie jakieś podmienianie na nowe
     return current_best_solution, current_lowest_obj_func, i_iter
 
