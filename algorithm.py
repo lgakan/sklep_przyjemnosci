@@ -1,4 +1,6 @@
 # functions needed to work out the final solution based on the evolutionary algorithm
+import csv
+
 from solution import Solution
 from random import randint
 from random import sample
@@ -14,7 +16,7 @@ import matplotlib.pyplot as plt
 population_size = 10
 selection_method = 'ranking'
 # Parent_count*(Parent_count - 1) < Population_size
-parent_percentage = 0.2
+parent_percentage = 0.3
 chance_to_crossover = 0.5
 mutation_type = 'singular'
 max_iters = 100
@@ -39,8 +41,7 @@ for _ in range(population_size):
     general_population.append(deepcopy(sol))
     sol.reset_solution()
 sol_mat = deepcopy(sol.solution_matrix)
-
-
+general_population_copy = deepcopy(general_population)  # to użyć gdzieś ewentualnie
 # Returns:
 # 1. ObjFunction value for parents
 # 2. Parents Solutions
@@ -50,10 +51,9 @@ def selection_tournament(population: list, amount, budget):
     parents = []
     for matrix in population:
         parents.append((get_penalty_func(ObjFunction(matrix, main_sellers_base, main_inventory), budget), matrix))
-    parents_sorted = deepcopy(parents)
-    parents_sorted.sort(key=lambda x: x[0])
     parents_amount = int(amount * population_size)
-    parents_sorted = parents_sorted[population_size - parents_amount * (parents_amount - 1):]
+    parents.sort(key=lambda x: x[0])
+    parents_sorted = parents[population_size - parents_amount * (parents_amount - 1):]
     while len(parents) > parents_amount:
         for i in range(0, len(parents)//2, 2):
             if parents[i][0] < parents[i+1][0]:
@@ -77,13 +77,11 @@ def selection_roulette(population: list, amount, budget):
     for matrix in population:
         parents.append([get_penalty_func(ObjFunction(matrix, main_sellers_base, main_inventory), budget), matrix])
     parents.sort(key=lambda x: x[0])
-    parents_sorted = deepcopy(parents)
-    parents_sorted = parents_sorted[population_size - parents_amount * (parents_amount - 1):]
-    length = population_size
-    for i in range(length):
-        parents[i].append(length-i)
+    parents_sorted = parents[population_size - parents_amount * (parents_amount - 1):]
+    for i in range(population_size):
+        parents[i].append(population_size-i)
     new_list_of_solutions = []
-    for i in range(length):
+    for i in range(population_size):
         for j in range(parents[i][2]):
             new_list_of_solutions.append((parents[i][0], parents[i][1]))
     rd.shuffle(new_list_of_solutions)
@@ -93,8 +91,8 @@ def selection_roulette(population: list, amount, budget):
         new_list_of_solutions = list(filter((parents[-1]).__ne__, new_list_of_solutions))
     return [i for i, _ in parents], \
            [i for _, i in parents], \
-           [i for i, _ in parents_sorted], \
-           [i for _, i in parents_sorted]
+           [i[0] for i in parents_sorted], \
+           [i[1] for i in parents_sorted]
 
 
 # Returns:
@@ -192,28 +190,44 @@ def crossover_chess(matrix1, matrix2):
 
 
 # example of oder_list [('item_15', 7), ('item_16', 10)]
-def crossover_basic(matrix1, matrix2, order_length, choice='random'):
-    m, n = np.shape(matrix1)
+def crossover_basic(numpy_matrices_list: list, order_length: int, choice='random', mode="rows_idx_and_number"):
+    m, n = np.shape(numpy_matrices_list[0])
     rows_idx_to_swap = None
-    cols_idx_to_swap = None
     if choice == 'random':
-        rows_idx_to_swap = sample([i for i in range(m)], randint(1, order_length-1))
-        cols_idx_to_swap = sample([i for i in range(n)], len(rows_idx_to_swap))
+        if mode == 'rows_idx':
+            rows_idx_to_swap = sample([i for i in range(m)],  order_length // 2)
+        if mode == 'rows_number':
+            rows_idx_to_swap = sample([i for i in range(0, m, 2)], randint(1, order_length-1))
+        if mode == 'rows_idx_and_number':
+            rows_idx_to_swap = sample([i for i in range(m)], randint(1, order_length - 1))
     elif choice == 'choice':
-        rows_idx_to_swap = input('Enter rows idx to swap in format: 0 2 4: ')
-        rows_idx_to_swap = rows_idx_to_swap.split(' ')
-        rows_idx_to_swap = [int(x) for x in rows_idx_to_swap]
-        cols_idx_to_swap = sample([i for i in range(n)], len(rows_idx_to_swap))
+        if mode == 1:
+            rows_idx_to_swap = input('Enter rows idx to swap in format: 0 2 4: ')
+            rows_idx_to_swap = rows_idx_to_swap.split(' ')
+            rows_idx_to_swap = [int(x) for x in rows_idx_to_swap]
+            rows_idx_to_swap = list(set(rows_idx_to_swap))
+            if len(rows_idx_to_swap) > m:
+                rows_idx_to_swap = rows_idx_to_swap[0:m]
+            for i in range(len(rows_idx_to_swap)):
+                if rows_idx_to_swap[i] >= m:
+                    rows_idx_to_swap[i] = m-1
+            rows_idx_to_swap = list(set(rows_idx_to_swap))
     if rows_idx_to_swap is not None:
         if len(rows_idx_to_swap) == 0:
-            return matrix1, matrix2
+            return numpy_matrices_list
         else:
-            m1 = deepcopy(matrix1)
-            m2 = deepcopy(matrix2)
-            for i in rows_idx_to_swap:
-                for j in cols_idx_to_swap:
-                    m1[i, j], m2[i, j] = matrix2[i, j], matrix1[i, j]
-        return m1, m2
+            list_to_return = []
+            matrices_list = [i.tolist() for i in numpy_matrices_list]
+            for i in range(len(matrices_list)):
+                for j in range(i, len(matrices_list)):
+                    if i != j:
+                        m1 = matrices_list[i]
+                        m2 = matrices_list[j]
+                        for x in rows_idx_to_swap:
+                            m1[x], m2[x] = m2[x], m1[x]
+                        list_to_return.append(m1)
+                        list_to_return.append(m2)
+            return [np.array(i) for i in list_to_return[:len(matrices_list)]]
 
 
 def get_penalty_func(solution: ObjFunction, budget):
@@ -297,11 +311,18 @@ def mutate_with_seller_elimination(sol_matrix: np.array):
     return sol_matrix
 
 
+def create_report(csv_path: str, ordered_data: list):
+    with open(csv_path, 'a', newline='') as file:
+        # for clean view in Excel, you need to add , delimiter=';'
+        writer_object = csv.writer(file)
+        writer_object.writerow(ordered_data)
+
+
 def main():
     obj_functions_to_plot = []
     i_iter = 1
     iter_counter = 0
-    starting_population = general_population
+    starting_population = general_population  # mój pomysł - tworzenie tego za pomocą funkcji, wtedy łatwiej w testach
     current_best_solution = None
     current_lowest_obj_func = np.inf
     while i_iter <= max_iters and iter_counter <= iters_without_change:
@@ -328,24 +349,19 @@ def main():
                 current_best_solution = temp_pop[0]
 
         if rd.random() > chance_to_crossover:
-            baby1, baby2 = crossover_basic(temp_pop[0].get_solution_matrix(),
-                                           temp_pop[1].get_solution_matrix(),
-                                           len(main_client.get_order()))
+            baby_matrices = crossover_basic([i.get_solution_matrix() for i in temp_pop], len(main_client.get_order()))
         else:
-            baby1, baby2 = temp_pop[0].get_solution_matrix(), temp_pop[1].get_solution_matrix()
+            baby_matrices = [i.get_solution_matrix() for i in temp_pop]
         if mutation_type == 'singular':
-            baby1, baby2 = mutate_singular_product(np.array(baby1)), mutate_singular_product(np.array(baby2))
+            baby_matrices = [mutate_singular_product(np.array(i)) for i in baby_matrices]
         else:
-            baby1, baby2 = mutate_with_seller_elimination(np.array(baby1)), \
-                           mutate_with_seller_elimination(np.array(baby2))
-        sol.solution_matrix = deepcopy(baby1)
-        offspring = [(get_penalty_func(ObjFunction(sol, main_sellers_base, main_inventory), main_client.budget),
-                      deepcopy(sol))]
-        sol.reset_solution()
-        sol.solution_matrix = deepcopy(baby2)
-        offspring.append((get_penalty_func(ObjFunction(sol, main_sellers_base, main_inventory), main_client.budget),
-                          deepcopy(sol)))
-        sol.reset_solution()
+            baby_matrices = [mutate_with_seller_elimination(np.array(i)) for i in baby_matrices]
+        offspring = []
+        for baby in baby_matrices:
+            sol.solution_matrix = deepcopy(baby)
+            offspring.append((get_penalty_func(ObjFunction(sol, main_sellers_base, main_inventory), main_client.budget),
+                              deepcopy(sol)))
+            sol.reset_solution()
         offspring.sort(key=lambda x: x[0])
         k = 0
         offspring_count = len(offspring)
@@ -371,11 +387,13 @@ def main():
         i_iter += 1
         iter_counter += 1
         obj_functions_to_plot.append(current_lowest_obj_func)
-        print(i_iter)
-    print(current_best_solution)
+        # print(i_iter)
+    # print(current_best_solution)
     plt.figure()
     plt.plot(np.arange(i_iter - 1), obj_functions_to_plot)
     plt.show()
+    # general_population = general_population_copy #ewentualnie jakieś podmienianie na nowe
+    return current_best_solution, current_lowest_obj_func, i_iter
 
 
 if __name__ == '__main__':
