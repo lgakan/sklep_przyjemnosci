@@ -50,9 +50,9 @@ def selection_tournament(population: list, amount, budget):
     parents = []
     for matrix in population:
         parents.append((get_penalty_func(ObjFunction(matrix, main_sellers_base, main_inventory), budget), matrix))
-    parents_sorted = deepcopy(sorted(parents))
     parents_amount = int(amount * population_size)
-    parents_sorted = parents_sorted[population_size - parents_amount * (parents_amount - 1):]
+    parents.sort(key=lambda x: x[0])
+    parents_sorted = parents[population_size - parents_amount * (parents_amount - 1):]
     while len(parents) > parents_amount:
         for i in range(0, len(parents)//2, 2):
             if parents[i][0] < parents[i+1][0]:
@@ -75,14 +75,12 @@ def selection_roulette(population: list, amount, budget):
     parents = []
     for matrix in population:
         parents.append([get_penalty_func(ObjFunction(matrix, main_sellers_base, main_inventory), budget), matrix])
-    parents = sorted(parents)
-    parents_sorted = deepcopy(parents)
-    parents_sorted = parents_sorted[population_size - parents_amount * (parents_amount - 1):]
-    length = population_size
-    for i in range(length):
-        parents[i].append(length-i)
+    parents.sort(key=lambda x: x[0])
+    parents_sorted = parents[population_size - parents_amount * (parents_amount - 1):]
+    for i in range(population_size):
+        parents[i].append(population_size-i)
     new_list_of_solutions = []
-    for i in range(length):
+    for i in range(population_size):
         for j in range(parents[i][2]):
             new_list_of_solutions.append((parents[i][0], parents[i][1]))
     rd.shuffle(new_list_of_solutions)
@@ -92,8 +90,8 @@ def selection_roulette(population: list, amount, budget):
         new_list_of_solutions = list(filter((parents[-1]).__ne__, new_list_of_solutions))
     return [i for i, _ in parents], \
            [i for _, i in parents], \
-           [i for i, _ in parents_sorted], \
-           [i for _, i in parents_sorted]
+           [i[0] for i in parents_sorted], \
+           [i[1] for i in parents_sorted]
 
 
 # Returns:
