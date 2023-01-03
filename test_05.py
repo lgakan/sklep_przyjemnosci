@@ -14,12 +14,12 @@ from copy import deepcopy
 import matplotlib.pyplot as plt
 
 population_size = 10
-selection_method = 'ranking'
+selection_method = 'roulette'
 # Parent_count*(Parent_count - 1) < Population_size
-parent_percentage = 0.3
+parent_percentage = 0.2
 chance_to_crossover = 0.5
 mutation_type = 'singular'
-max_iters = 100
+max_iters = 200
 iters_without_change = 15
 main_inventory = GeneralInventory()
 main_sellers_base = SellersBase(main_inventory)
@@ -42,6 +42,8 @@ for _ in range(population_size):
     sol.reset_solution()
 sol_mat = deepcopy(sol.solution_matrix)
 general_population_copy = deepcopy(general_population)  # to użyć gdzieś ewentualnie
+
+
 # Returns:
 # 1. ObjFunction value for parents
 # 2. Parents Solutions
@@ -55,9 +57,9 @@ def selection_tournament(population: list, amount, budget):
     parents.sort(key=lambda x: x[0])
     parents_sorted = parents[population_size - parents_amount * (parents_amount - 1):]
     while len(parents) > parents_amount:
-        for i in range(0, len(parents)//2, 2):
-            if parents[i][0] < parents[i+1][0]:
-                parents.remove(parents[i+1])
+        for i in range(0, len(parents) // 2, 2):
+            if parents[i][0] < parents[i + 1][0]:
+                parents.remove(parents[i + 1])
             else:
                 parents.remove(parents[i])
     return [i for i, _ in parents], \
@@ -79,7 +81,7 @@ def selection_roulette(population: list, amount, budget):
     parents.sort(key=lambda x: x[0])
     parents_sorted = parents[population_size - parents_amount * (parents_amount - 1):]
     for i in range(population_size):
-        parents[i].append(population_size-i)
+        parents[i].append(population_size - i)
     new_list_of_solutions = []
     for i in range(population_size):
         for j in range(parents[i][2]):
@@ -152,7 +154,7 @@ def crossover_halves(matrix1: np.array, matrix2: np.array, type_cross='rows'):
     if type_cross == 'rows':
         for i in range(m):
             if type_cross == 'rows':
-                if i == m//2:
+                if i == m // 2:
                     break
                 for j in range(n):
                     matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
@@ -195,9 +197,9 @@ def crossover_basic(numpy_matrices_list: list, order_length: int, choice='random
     rows_idx_to_swap = None
     if choice == 'random':
         if mode == 'rows_idx':
-            rows_idx_to_swap = sample([i for i in range(m)],  order_length // 2)
+            rows_idx_to_swap = sample([i for i in range(m)], order_length // 2)
         if mode == 'rows_number':
-            rows_idx_to_swap = sample([i for i in range(0, m, 2)], randint(1, order_length-1))
+            rows_idx_to_swap = sample([i for i in range(0, m, 2)], randint(1, order_length - 1))
         if mode == 'rows_idx_and_number':
             rows_idx_to_swap = sample([i for i in range(m)], randint(1, order_length - 1))
     elif choice == 'choice':
@@ -210,7 +212,7 @@ def crossover_basic(numpy_matrices_list: list, order_length: int, choice='random
                 rows_idx_to_swap = rows_idx_to_swap[0:m]
             for i in range(len(rows_idx_to_swap)):
                 if rows_idx_to_swap[i] >= m:
-                    rows_idx_to_swap[i] = m-1
+                    rows_idx_to_swap[i] = m - 1
             rows_idx_to_swap = list(set(rows_idx_to_swap))
     if rows_idx_to_swap is not None:
         if len(rows_idx_to_swap) == 0:
@@ -234,7 +236,7 @@ def get_penalty_func(solution: ObjFunction, budget):
     obj_func = solution.get_objective_func()
     diff = obj_func[0] - budget
     if diff > 0:
-        return obj_func[0] + 10*diff
+        return obj_func[0] + 10 * diff
     else:
         return obj_func[0]
 
@@ -314,7 +316,7 @@ def mutate_with_seller_elimination(sol_matrix: np.array):
 def create_report(csv_path: str, ordered_data: list):
     with open(csv_path, 'a', newline='') as file:
         # for clean view in Excel, you need to add , delimiter=';'
-        writer_object = csv.writer(file)
+        writer_object = csv.writer(file, delimiter=';')
         writer_object.writerow(ordered_data)
 
 
@@ -322,7 +324,7 @@ def main():
     obj_functions_to_plot = []
     i_iter = 1
     iter_counter = 0
-    starting_population = general_population  # mój pomysł - tworzenie tego za pomocą funkcji, wtedy łatwiej w testach
+    starting_population = deepcopy(general_population)  # mój pomysł - tworzenie tego za pomocą funkcji, wtedy łatwiej w testach
     current_best_solution = None
     current_lowest_obj_func = np.inf
     while i_iter <= max_iters and iter_counter <= iters_without_change:
@@ -371,12 +373,12 @@ def main():
                 if k == offspring_count:
                     break
             if k != offspring_count:
-                general_population.remove(comparison_pop[-1])
+                starting_population.remove(comparison_pop[-1])
                 worst_funcs.insert(k, func_i)
                 worst_funcs.pop()
                 comparison_pop.insert(k, offspring_i)
                 comparison_pop.pop()
-                general_population.append(comparison_pop[k])
+                starting_population.append(comparison_pop[k])
 
                 if func_i < current_lowest_obj_func:
                     iter_counter = 0
@@ -389,12 +391,18 @@ def main():
         obj_functions_to_plot.append(current_lowest_obj_func)
         # print(i_iter)
     # print(current_best_solution)
-    plt.figure()
-    plt.plot(np.arange(i_iter - 1), obj_functions_to_plot)
-    plt.show()
+    # plt.figure()
+    # plt.plot(np.arange(i_iter - 1), obj_functions_to_plot)
+    # plt.show()
     # general_population = general_population_copy #ewentualnie jakieś podmienianie na nowe
     return current_best_solution, current_lowest_obj_func, i_iter
 
 
 if __name__ == '__main__':
-    main()
+    create_report("Test_statistics/test_05.csv", 'Singular')
+    for _ in range(30):
+        create_report("Test_statistics/test_05.csv", main()[1:])
+    create_report("Test_statistics/test_05.csv", 'Elimination')
+    mutation_type = 'elimination'
+    for _ in range(30):
+        create_report("Test_statistics/test_05.csv", main()[1:])
