@@ -1,4 +1,6 @@
 # functions needed to work out the final solution based on the evolutionary algorithm
+import csv
+
 from solution import Solution
 from random import randint
 from random import sample
@@ -310,6 +312,13 @@ def mutate_with_seller_elimination(sol_matrix: np.array):
         if sol_matrix[chosen_product][chosen_seller_to_receive] == list_with_max_quantities[chosen_seller_to_receive]:
             list_to_draw_from.remove(chosen_seller_to_receive)
     return sol_matrix
+
+
+def create_report(csv_path: str, ordered_data: list):
+    with open(csv_path, 'a', newline='') as file:
+        # for clean view in excel, you need to add , delimiter=';'
+        writer_object = csv.writer(file)
+        writer_object.writerow(ordered_data)
 
 
 def main():
