@@ -41,8 +41,7 @@ for _ in range(population_size):
     general_population.append(deepcopy(sol))
     sol.reset_solution()
 sol_mat = deepcopy(sol.solution_matrix)
-
-
+general_population_copy = deepcopy(general_population)  # to użyć gdzieś ewentualnie
 # Returns:
 # 1. ObjFunction value for parents
 # 2. Parents Solutions
@@ -323,7 +322,7 @@ def main():
     obj_functions_to_plot = []
     i_iter = 1
     iter_counter = 0
-    starting_population = general_population
+    starting_population = general_population  # mój pomysł - tworzenie tego za pomocą funkcji, wtedy łatwiej w testach
     current_best_solution = None
     current_lowest_obj_func = np.inf
     while i_iter <= max_iters and iter_counter <= iters_without_change:
@@ -388,11 +387,13 @@ def main():
         i_iter += 1
         iter_counter += 1
         obj_functions_to_plot.append(current_lowest_obj_func)
-        print(i_iter)
-    print(current_best_solution)
+        # print(i_iter)
+    # print(current_best_solution)
     plt.figure()
     plt.plot(np.arange(i_iter - 1), obj_functions_to_plot)
     plt.show()
+    # general_population = general_population_copy #ewentualnie jakieś podmienianie na nowe
+    return current_best_solution, current_lowest_obj_func, i_iter
 
 
 if __name__ == '__main__':
