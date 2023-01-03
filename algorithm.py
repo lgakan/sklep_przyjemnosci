@@ -314,7 +314,7 @@ def mutate_with_seller_elimination(sol_matrix: np.array):
 
 def create_report(csv_path: str, ordered_data: list):
     with open(csv_path, 'a', newline='') as file:
-        # for clean view in excel, you need to add , delimiter=';'
+        # for clean view in Excel, you need to add , delimiter=';'
         writer_object = csv.writer(file)
         writer_object.writerow(ordered_data)
 
