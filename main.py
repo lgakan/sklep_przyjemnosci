@@ -26,7 +26,7 @@ def generate_database(sellers_count, products_count, count_max):
             if list_of_id_items[j] in id_items_p.keys():
                 p = id_items_p[list_of_id_items[j]]
                 if p <= 5:
-                    price = rd.randint(0, 5)
+                    price = rd.randint(1, 5)
                 elif 6 <= p <= 8:
                     price = rd.randint(20, 50)
                 elif p >= 9:
@@ -35,7 +35,7 @@ def generate_database(sellers_count, products_count, count_max):
                 p = rd.randint(0, 10)
                 id_items_p[list_of_id_items[j]] = p
                 if p <= 5:
-                    price = rd.randint(0, 5)
+                    price = rd.randint(1, 5)
                 elif 6 <= p <= 8:
                     price = rd.randint(20, 50)
                 elif p >= 9:
