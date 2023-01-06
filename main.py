@@ -8,6 +8,26 @@ import numpy as np
 import random as rd
 
 
+def generate_database(sellers_count, products_count, count_max):
+    print('id_seller;id_item;count;price')
+    for i in range(sellers_count):
+        list_of_id_items = []
+        seller_different_products = rd.randint(int(0.15*products_count), products_count) #tu zależnie ile chcemy by seller miał unikalnych produktow w ofercie
+        for j in range(seller_different_products):
+            while True:
+                id_item = rd.randint(0, products_count-1)
+                if id_item not in list_of_id_items:
+                    list_of_id_items.append(id_item)
+                    break
+            count = rd.randint(1, count_max)
+            p = rd.randint(0, 10)
+            if p <= 5:
+                price = rd.randint(0, 5)
+            elif 6 <= p <= 8:
+                price = rd.randint(20, 50)
+            elif p >= 9:
+                price = rd.randint(200, 500)
+            print(f"{i};{list_of_id_items[j]};{count};{price}")
 def main():
     # # Generating products inventory from .csv file
     # my_inventory = GeneralInventory()
@@ -72,9 +92,9 @@ def main():
     #                                   my_own_self.get_oder_quantity(),
     #                                   'random')
     # print(my_solution)
-    a = [2, 1, 1, 3]
-    print(sorted(a))
-
+    # a = [2, 1, 1, 3]
+    # print(sorted(a))
+    print(generate_database(30, 50, 30))
 
 if __name__ == '__main__':
     main()
