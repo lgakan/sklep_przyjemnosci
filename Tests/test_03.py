@@ -390,9 +390,9 @@ def main():
         obj_functions_to_plot.append(current_lowest_obj_func)
         # print(i_iter)
     # print(current_best_solution)
-    # plt.figure()
-    # plt.plot(np.arange(i_iter - 1), obj_functions_to_plot)
-    # plt.show()
+    plt.figure()
+    plt.plot(np.arange(i_iter - 1), obj_functions_to_plot)
+    plt.show()
     # general_population = general_population_copy #ewentualnie jakieś podmienianie na nowe
     return current_best_solution, current_lowest_obj_func, i_iter
 
