@@ -7,12 +7,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random as rd
 
-
+# jak dużo kosztuje to dużo waży
+# cena w tym samym przedziale dla danego produktu
 def generate_database(sellers_count, products_count, count_max):
     print('id_seller;id_item;count;price')
+    id_items_p = {}
     for i in range(sellers_count):
         list_of_id_items = []
-        seller_different_products = rd.randint(int(0.15*products_count), products_count) #tu zależnie ile chcemy by seller miał unikalnych produktow w ofercie
+        seller_different_products = rd.randint(int(0.15*products_count), products_count)  # tu zależnie ile chcemy by seller miał unikalnych produktow w ofercie
         for j in range(seller_different_products):
             while True:
                 id_item = rd.randint(0, products_count-1)
@@ -20,13 +22,24 @@ def generate_database(sellers_count, products_count, count_max):
                     list_of_id_items.append(id_item)
                     break
             count = rd.randint(1, count_max)
-            p = rd.randint(0, 10)
-            if p <= 5:
-                price = rd.randint(0, 5)
-            elif 6 <= p <= 8:
-                price = rd.randint(20, 50)
-            elif p >= 9:
-                price = rd.randint(200, 500)
+            # p = rd.randint(0, 10)  # prawdopodobienstwo cen
+            if list_of_id_items[j] in id_items_p.keys():
+                p = id_items_p[list_of_id_items[j]]
+                if p <= 5:
+                    price = rd.randint(0, 5)
+                elif 6 <= p <= 8:
+                    price = rd.randint(20, 50)
+                elif p >= 9:
+                    price = rd.randint(200, 500)
+            else:
+                p = rd.randint(0, 10)
+                id_items_p[list_of_id_items[j]] = p
+                if p <= 5:
+                    price = rd.randint(0, 5)
+                elif 6 <= p <= 8:
+                    price = rd.randint(20, 50)
+                elif p >= 9:
+                    price = rd.randint(200, 500)
             print(f"{i};{list_of_id_items[j]};{count};{price}")
 def main():
     # # Generating products inventory from .csv file
@@ -94,7 +107,7 @@ def main():
     # print(my_solution)
     # a = [2, 1, 1, 3]
     # print(sorted(a))
-    print(generate_database(30, 50, 30))
+    print(generate_database(20, 30, 30))
 
 if __name__ == '__main__':
     main()
