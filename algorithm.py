@@ -1,6 +1,5 @@
 # functions needed to work out the final solution based on the evolutionary algorithm
 import csv
-
 from solution import Solution
 from random import randint
 from random import sample
@@ -15,6 +14,7 @@ import matplotlib.pyplot as plt
 
 population_size = 10
 selection_method = 'ranking'
+crossover_method = ('basic','rows_idx_and_number')
 # Parent_count*(Parent_count - 1) < Population_size
 parent_percentage = 0.2
 chance_to_crossover = 0.5
@@ -42,6 +42,8 @@ for _ in range(population_size):
     sol.reset_solution()
 sol_mat = deepcopy(sol.solution_matrix)
 general_population_copy = deepcopy(general_population)  # to użyć gdzieś ewentualnie
+
+
 # Returns:
 # 1. ObjFunction value for parents
 # 2. Parents Solutions
@@ -164,20 +166,28 @@ def crossover_halves(matrix1: np.array, matrix2: np.array, type_cross='rows'):
         return matrix1, matrix2
 
 
-def crossover_every_2nd(matrix1: np.array, matrix2: np.array, type_cross='rows'):
-    # m = len(matrix1)
-    # n = len(matrix1[0])
-    m, n = np.shape(matrix1)
-    if type_cross == 'rows':
-        for i in range(0, m, 2):
-            for j in range(n):
-                matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
-        return matrix1, matrix2
-    elif type_cross == 'columns':
-        for i in range(m):
-            for j in range(0, n, 2):
-                matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
-        return matrix1, matrix2
+def crossover_every_2nd(numpy_matrices_list: list, type_cross='rows'):
+    m, n = np.shape(numpy_matrices_list[0])
+    matrices_list = [i.tolist() for i in numpy_matrices_list]
+    list_to_return = []
+    for i in range(len(matrices_list)):
+        for j in range(i, len(matrices_list)):
+            if i != j:
+                matrix1 = matrices_list[i]
+                matrix2 = matrices_list[j]
+                if type_cross == 'rows':
+                    for x in range(0, m, 2):
+                        for y in range(n):
+                            matrix1[x][y], matrix2[x][y] = matrix2[x][y], matrix1[x][y]
+                    list_to_return.append(matrix1)
+                    list_to_return.append(matrix2)
+                elif type_cross == 'columns':
+                    for x in range(m):
+                        for y in range(0, n, 2):
+                            matrix1[x][y], matrix2[x][y] = matrix2[x][y], matrix1[x][y]
+                    list_to_return.append(matrix1)
+                    list_to_return.append(matrix2)
+    return [np.array(i) for i in list_to_return]
 
 
 def crossover_chess(matrix1, matrix2):
@@ -192,12 +202,16 @@ def crossover_chess(matrix1, matrix2):
 # example of oder_list [('item_15', 7), ('item_16', 10)]
 def crossover_basic(numpy_matrices_list: list, order_length: int, choice='random', mode="rows_idx_and_number"):
     m, n = np.shape(numpy_matrices_list[0])
+    if order_length >= m:
+        order_length = m-1
+    if order_length == 1:
+        order_length += 1
     rows_idx_to_swap = None
     if choice == 'random':
         if mode == 'rows_idx':
             rows_idx_to_swap = sample([i for i in range(m)],  order_length // 2)
         if mode == 'rows_number':
-            rows_idx_to_swap = sample([i for i in range(0, m, 2)], randint(1, order_length-1))
+            rows_idx_to_swap = sample([i for i in range(0, m, 2)], randint(1, (order_length//2)-1))
         if mode == 'rows_idx_and_number':
             rows_idx_to_swap = sample([i for i in range(m)], randint(1, order_length - 1))
     elif choice == 'choice':
@@ -349,7 +363,22 @@ def main():
                 current_best_solution = temp_pop[0]
 
         if rd.random() > chance_to_crossover:
-            baby_matrices = crossover_basic([i.get_solution_matrix() for i in temp_pop], len(main_client.get_order()))
+            if crossover_method == ('basic', 'rows_idx'):
+                baby_matrices = crossover_basic([i.get_solution_matrix() for i in temp_pop],
+                                                len(main_client.get_order()),
+                                                mode='rows_idx')
+            elif crossover_method == ('basic', 'rows_number'):
+                baby_matrices = crossover_basic([i.get_solution_matrix() for i in temp_pop],
+                                                len(main_client.get_order()),
+                                                mode='rows_number')
+            elif crossover_method == ('basic', 'rows_idx_and_number'):
+                baby_matrices = crossover_basic([i.get_solution_matrix() for i in temp_pop],
+                                                len(main_client.get_order()),
+                                                mode='rows_idx_and_number')
+            elif crossover_method == 'every_2nd':
+                baby_matrices = crossover_every_2nd([i.get_solution_matrix() for i in temp_pop])
+            else:
+                baby_matrices = None
         else:
             baby_matrices = [i.get_solution_matrix() for i in temp_pop]
         if mutation_type == 'singular':
@@ -396,5 +425,26 @@ def main():
     return current_best_solution, current_lowest_obj_func, i_iter
 
 
+def t():
+    # m1 = np.array([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 16]])
+    # m2 = np.array([[11, 22, 33, 44], [55, 66, 77, 88], [99, 100, 111, 122], [133, 144, 155, 166]])
+    m1 = np.array([[1, 2, 3, 4, 5, 6],
+                   [7, 8, 9, 10, 11, 12],
+                   [13, 14, 15, 16, 17, 18],
+                   [19, 20, 21, 22, 23, 24],
+                   [25, 26, 27, 28, 29, 30],
+                   [31, 32, 33, 34, 35, 36]])
+    m2 = np.array([[11, 22, 33, 44, 55, 66],
+                   [77, 88, 99, 100, 111, 122],
+                   [133, 144, 155, 166, 177, 188],
+                   [199, 200, 211, 222, 233, 244],
+                   [255, 266, 277, 288, 299, 300],
+                   [311, 322, 333, 344, 355, 366]])
+
+    z1, z2 = crossover_basic([m1, m2], 5)
+    print(z1)
+    print(z2)
+
 if __name__ == '__main__':
-    main()
+    # main()
+    t()
