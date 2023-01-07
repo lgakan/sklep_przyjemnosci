@@ -149,21 +149,21 @@ def selection_ranking(population: list, amount, budget):
 #         return matrix
 
 
-def crossover_halves(matrix1: np.array, matrix2: np.array, type_cross='rows'):
-    m, n = np.shape(matrix1)
-    if type_cross == 'rows':
-        for i in range(m):
-            if type_cross == 'rows':
-                if i == m//2:
-                    break
-                for j in range(n):
-                    matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
-            elif type_cross == 'columns':
-                for j in range(n):
-                    if j == n // 2:
-                        break
-                    matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
-        return matrix1, matrix2
+# def crossover_halves(matrix1: np.array, matrix2: np.array, type_cross='rows'):
+#     m, n = np.shape(matrix1)
+#     if type_cross == 'rows':
+#         for i in range(m):
+#             if type_cross == 'rows':
+#                 if i == m//2:
+#                     break
+#                 for j in range(n):
+#                     matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
+#             elif type_cross == 'columns':
+#                 for j in range(n):
+#                     if j == n // 2:
+#                         break
+#                     matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
+#         return matrix1, matrix2
 
 
 def crossover_every_2nd(numpy_matrices_list: list, type_cross='rows'):
@@ -190,13 +190,13 @@ def crossover_every_2nd(numpy_matrices_list: list, type_cross='rows'):
     return [np.array(i) for i in list_to_return]
 
 
-def crossover_chess(matrix1, matrix2):
-    m, n = np.shape(matrix1)
-    for i in range(m):
-        for j in range(n):
-            if (i + j) % 2 != 0:
-                matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
-    return matrix1, matrix2
+# def crossover_chess(matrix1, matrix2):
+#     m, n = np.shape(matrix1)
+#     for i in range(m):
+#         for j in range(n):
+#             if (i + j) % 2 != 0:
+#                 matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
+#     return matrix1, matrix2
 
 
 # example of oder_list [('item_15', 7), ('item_16', 10)]
