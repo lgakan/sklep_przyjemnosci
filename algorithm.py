@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 population_size = 10
 selection_method = 'ranking'
-crossover_method = ('basic','rows_idx_and_number')
+crossover_method = ('basic', 'rows_idx_and_number')
 # Parent_count*(Parent_count - 1) < Population_size
 parent_percentage = 0.2
 chance_to_crossover = 0.5
@@ -354,13 +354,15 @@ def main():
             if i_iter == 1:
                 current_lowest_obj_func = min(obj_funcs)
                 current_best_solution = temp_pop[obj_funcs.index(current_lowest_obj_func)]
-        else:
+        elif selection_method == 'ranking':
             obj_funcs, temp_pop, worst_funcs, comparison_pop = selection_ranking(starting_population,
                                                                                  parent_percentage,
                                                                                  main_client.budget)
             if i_iter == 1:
                 current_lowest_obj_func = obj_funcs[0]
                 current_best_solution = temp_pop[0]
+        else:
+            obj_funcs, temp_pop, worst_funcs, comparison_pop = [None] * 4
 
         if rd.random() > chance_to_crossover:
             if crossover_method == ('basic', 'rows_idx'):

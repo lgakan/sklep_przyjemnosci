@@ -47,6 +47,7 @@ class SellersBase:
     def get_sellers_base_size(self):
         return len(self.sellers_list)
 
+    # TODO: 1
     def get_sellers_with_items(self, item_ids):
         dict_of_sellers = {}
         list_of_sellers = []

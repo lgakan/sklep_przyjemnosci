@@ -10,6 +10,10 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+# from matplotlib.figure import Figure
+import algorithm
 
 
 class Ui_MainWindow(object):
@@ -91,7 +95,7 @@ class Ui_MainWindow(object):
         self.radio_mut_elimination = QtWidgets.QRadioButton(self.verticalLayoutWidget_2)
         self.radio_mut_elimination.setObjectName("radio_mut_elimination")
         self.layout_mutation.addWidget(self.radio_mut_elimination)
-        self.button_start = QtWidgets.QPushButton(self.centralwidget)
+        self.button_start = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.gui_main_fun())
         self.button_start.setGeometry(QtCore.QRect(50, 30, 75, 23))
         self.button_start.setObjectName("button_start")
         self.button_restart = QtWidgets.QPushButton(self.centralwidget)
@@ -114,11 +118,26 @@ class Ui_MainWindow(object):
         self.frame_discount.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_discount.setObjectName("frame_discount")
         self.layout_charts.addWidget(self.frame_discount)
+
+        # DISCOUNT CHART
+        self.layout_horizontal_discount_chart = QtWidgets.QHBoxLayout(self.frame_discount)
+        self.layout_horizontal_discount_chart.setObjectName("layout_horizontal_discount_chart")
+        self.figure_charts = plt.figure()
+        self.canvas_discount = FigureCanvas(self.figure_charts)
+        self.layout_horizontal_discount_chart.addWidget(self.canvas_discount)
+
         self.frame_delivery = QtWidgets.QFrame(self.verticalLayoutWidget_5)
         self.frame_delivery.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_delivery.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_delivery.setObjectName("frame_delivery")
         self.layout_charts.addWidget(self.frame_delivery)
+
+        # DELIVERY CHART
+        self.layout_horizontal_delivery_chart = QtWidgets.QHBoxLayout(self.frame_delivery)
+        self.layout_horizontal_delivery_chart.setObjectName("layout_horizontal_delivery_chart")
+        self.canvas_delivery = FigureCanvas(self.figure_charts)
+        self.layout_horizontal_delivery_chart.addWidget(self.canvas_delivery)
+
         self.tabWidget.addTab(self.widget_charts, "")
         self.widget_algorithm = QtWidgets.QWidget()
         self.widget_algorithm.setObjectName("widget_algorithm")
@@ -209,6 +228,67 @@ class Ui_MainWindow(object):
         self.radio_con_left.setText(_translate("MainWindow", "Left"))
         self.radio_con_random.setText(_translate("MainWindow", "Random"))
         self.label_13.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:9pt; font-weight:600;\">Construction<br/></span></p><p align=\"center\"><br/></p></body></html>"))
+
+    def prepare_gui_parameters(self):
+        # PARAMETERS
+        algorithm.population_size = int(self.txt_population_size.text())
+        algorithm.parent_percentage = int(self.txt_parents_percentage.text()) / 100
+        # TODO: Change txt_mutation_chance -> txt_crossover_chance
+        algorithm.chance_to_crossover = int(self.txt_mutation_chance.text()) / 100
+        algorithm.max_iters = int(self.txt_generation_number.text())
+        # CONSTRUCTION
+        # TODO: Implement it
+        # Mutate
+        if self.radio_mut_singular.isChecked():
+            algorithm.mutation_type = 'singular'
+        elif self.radio_mut_elimination.isChecked():
+            algorithm.mutation_type = 'elimination'
+        # Crossover
+        if self.radio_cro_every_2nd.isChecked():
+            algorithm.crossover_method = 'every_2nd'
+        elif self.radio_cro_basic_rows_idx.isChecked():
+            algorithm.crossover_method = ('basic', 'rows_idx')
+        elif self.radio_cro_basic_rows_number.isChecked():
+            algorithm.crossover_method = ('basic', 'rows_number')
+        elif self.radio_cro_basic_rows_idx_and_number.isChecked():
+            algorithm.crossover_method = ('basic', 'rows_idx_and_number')
+        # Selection
+        if self.radio_sel_tournament.isChecked():
+            algorithm.selection_method = 'tournament'
+        elif self.radio_sel_roulette.isChecked():
+            algorithm.selection_method = 'roulette'
+        elif self.radio_sel_ranking.isChecked():
+            algorithm.selection_method = 'ranking'
+        print('Chosen parameters:')
+        print(f'population_size: {algorithm.population_size}')
+        print(f'parent_percentage: {algorithm.parent_percentage}')
+        print(f'chance_to_crossover: {algorithm.chance_to_crossover}')
+        print(f'max_iters: {algorithm.max_iters}')
+        print(f'mutation_type: {algorithm.mutation_type}')
+        print(f'crossover_method: {algorithm.crossover_method}')
+        print(f'selection_method: {algorithm.selection_method}')
+
+    def create_widget_charts(self):
+        self.figure_charts.clear()
+        apples = ['1', '2', '3', '4']
+        bananas = ['5', '6', '7', '8']
+        apples_values = [10, 20, 30, 40]
+        bananas_values = [50, 60, 70, 80]
+        plt.bar(apples, apples_values, color='red', width=0.4)
+        plt.xlabel('applesx')
+        plt.ylabel('applesy')
+        plt.title('apples')
+        self.canvas_discount.draw()
+        self.figure_charts.clear()
+        plt.xlabel('bananasx')
+        plt.ylabel('bananasy')
+        plt.title('bananas')
+        plt.bar(bananas, bananas_values, color='blue', width=0.4)
+        self.canvas_delivery.draw()
+
+    def gui_main_fun(self):
+        self.prepare_gui_parameters()
+        self.create_widget_charts()
 
 
 if __name__ == "__main__":
