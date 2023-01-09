@@ -1,14 +1,11 @@
 from PyQt5 import QtCore, QtWidgets
 import sys
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt5.QtWidgets import QTableWidgetItem, QStyledItemDelegate
 from PyQt5 import QtWidgets as qtw
 from app_new_population_window import Ui_window_create_new_population
 from app_new_shopping_list_window import Ui_window_create_new_shopping_list
 import algorithm
 import pyqtgraph as pg
-
 
 class ReadOnlyDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
@@ -22,7 +19,7 @@ class Ui_MainWindow(qtw.QWidget):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.formLayoutWidget = QtWidgets.QWidget(self.centralwidget)
-        self.formLayoutWidget.setGeometry(QtCore.QRect(10, 110, 172, 152))
+        self.formLayoutWidget.setGeometry(QtCore.QRect(10, 70, 172, 152))
         self.formLayoutWidget.setObjectName("formLayoutWidget")
         self.layout_parameters = QtWidgets.QFormLayout(self.formLayoutWidget)
         self.layout_parameters.setContentsMargins(0, 0, 0, 0)
@@ -66,27 +63,27 @@ class Ui_MainWindow(qtw.QWidget):
         self.txt_budget.setObjectName("txt_budget")
         self.layout_parameters.setWidget(5, QtWidgets.QFormLayout.FieldRole, self.txt_budget)
         self.verticalLayoutWidget = QtWidgets.QWidget(self.centralwidget)
-        self.verticalLayoutWidget.setGeometry(QtCore.QRect(40, 500, 91, 121))
+        self.verticalLayoutWidget.setGeometry(QtCore.QRect(30, 590, 91, 121))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
-        self.layout_cross = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
-        self.layout_cross.setContentsMargins(0, 0, 0, 0)
-        self.layout_cross.setObjectName("layout_cross")
+        self.layout_crossover = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
+        self.layout_crossover.setContentsMargins(0, 0, 0, 0)
+        self.layout_crossover.setObjectName("layout_crossover")
         self.radio_cro_every_2nd = QtWidgets.QRadioButton(self.verticalLayoutWidget)
         self.radio_cro_every_2nd.setChecked(True)
         self.radio_cro_every_2nd.setObjectName("radio_cro_every_2nd")
-        self.layout_cross.addWidget(self.radio_cro_every_2nd)
+        self.layout_crossover.addWidget(self.radio_cro_every_2nd)
         self.radio_cro_basic_rows_idx = QtWidgets.QRadioButton(self.verticalLayoutWidget)
         self.radio_cro_basic_rows_idx.setObjectName("radio_cro_basic_rows_idx")
-        self.layout_cross.addWidget(self.radio_cro_basic_rows_idx)
+        self.layout_crossover.addWidget(self.radio_cro_basic_rows_idx)
         self.radio_cro_basic_rows_number = QtWidgets.QRadioButton(self.verticalLayoutWidget)
         self.radio_cro_basic_rows_number.setObjectName("radio_cro_basic_rows_number")
-        self.layout_cross.addWidget(self.radio_cro_basic_rows_number)
+        self.layout_crossover.addWidget(self.radio_cro_basic_rows_number)
         self.radio_cro_basic_rows_idx_and_number = QtWidgets.QRadioButton(self.verticalLayoutWidget)
         self.radio_cro_basic_rows_idx_and_number.setChecked(False)
         self.radio_cro_basic_rows_idx_and_number.setObjectName("radio_cro_basic_rows_idx_and_number")
-        self.layout_cross.addWidget(self.radio_cro_basic_rows_idx_and_number)
+        self.layout_crossover.addWidget(self.radio_cro_basic_rows_idx_and_number)
         self.verticalLayoutWidget_2 = QtWidgets.QWidget(self.centralwidget)
-        self.verticalLayoutWidget_2.setGeometry(QtCore.QRect(44, 400, 81, 61))
+        self.verticalLayoutWidget_2.setGeometry(QtCore.QRect(34, 490, 81, 61))
         self.verticalLayoutWidget_2.setObjectName("verticalLayoutWidget_2")
         self.layout_mutation = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_2)
         self.layout_mutation.setContentsMargins(0, 0, 0, 0)
@@ -98,12 +95,11 @@ class Ui_MainWindow(qtw.QWidget):
         self.radio_mut_elimination = QtWidgets.QRadioButton(self.verticalLayoutWidget_2)
         self.radio_mut_elimination.setObjectName("radio_mut_elimination")
         self.layout_mutation.addWidget(self.radio_mut_elimination)
-        # USER
         self.button_start = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.gui_main_fun())
-        self.button_start.setGeometry(QtCore.QRect(50, 30, 75, 23))
+        self.button_start.setGeometry(QtCore.QRect(50, 10, 75, 23))
         self.button_start.setObjectName("button_start")
         self.button_restart = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.restart_parameters())
-        self.button_restart.setGeometry(QtCore.QRect(40, 820, 75, 23))
+        self.button_restart.setGeometry(QtCore.QRect(30, 860, 75, 23))
         self.button_restart.setObjectName("button_restart")
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.tabWidget.setGeometry(QtCore.QRect(180, 10, 921, 881))
@@ -162,7 +158,6 @@ class Ui_MainWindow(qtw.QWidget):
         self.graph_widget_algorithm = pg.PlotWidget()
         self.layout_horizontal_algorithm_chart.addWidget(self.graph_widget_algorithm)
 
-
         self.tabWidget.addTab(self.widget_algorithm, "")
         self.widget_solution_matrix = QtWidgets.QWidget()
         self.widget_solution_matrix.setObjectName("widget_solution_matrix")
@@ -179,47 +174,66 @@ class Ui_MainWindow(qtw.QWidget):
         self.layout_solution_matrix.addWidget(self.table_widget_solution_matrix)
         self.tabWidget.addTab(self.widget_solution_matrix, "")
         self.label_7 = QtWidgets.QLabel(self.centralwidget)
-        self.label_7.setGeometry(QtCore.QRect(40, 80, 101, 21))
+        self.label_7.setGeometry(QtCore.QRect(40, 40, 101, 21))
         self.label_7.setObjectName("label_7")
         self.label_8 = QtWidgets.QLabel(self.centralwidget)
-        self.label_8.setGeometry(QtCore.QRect(30, 480, 101, 21))
+        self.label_8.setGeometry(QtCore.QRect(20, 570, 101, 21))
         self.label_8.setObjectName("label_8")
         self.label_9 = QtWidgets.QLabel(self.centralwidget)
-        self.label_9.setGeometry(QtCore.QRect(50, 380, 61, 16))
+        self.label_9.setGeometry(QtCore.QRect(40, 470, 61, 16))
         self.label_9.setObjectName("label_9")
         self.label_10 = QtWidgets.QLabel(self.centralwidget)
-        self.label_10.setGeometry(QtCore.QRect(50, 650, 61, 16))
+        self.label_10.setGeometry(QtCore.QRect(40, 720, 61, 16))
         self.label_10.setObjectName("label_10")
         self.verticalLayoutWidget_3 = QtWidgets.QWidget(self.centralwidget)
-        self.verticalLayoutWidget_3.setGeometry(QtCore.QRect(40, 670, 83, 101))
+        self.verticalLayoutWidget_3.setGeometry(QtCore.QRect(30, 740, 83, 101))
         self.verticalLayoutWidget_3.setObjectName("verticalLayoutWidget_3")
-        self.layout_mutation_3 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_3)
-        self.layout_mutation_3.setContentsMargins(0, 0, 0, 0)
-        self.layout_mutation_3.setObjectName("layout_mutation_3")
+        self.layout_selection = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_3)
+        self.layout_selection.setContentsMargins(0, 0, 0, 0)
+        self.layout_selection.setObjectName("layout_selection")
         self.radio_sel_tournament = QtWidgets.QRadioButton(self.verticalLayoutWidget_3)
         self.radio_sel_tournament.setChecked(True)
         self.radio_sel_tournament.setObjectName("radio_sel_tournament")
-        self.layout_mutation_3.addWidget(self.radio_sel_tournament)
+        self.layout_selection.addWidget(self.radio_sel_tournament)
         self.radio_sel_roulette = QtWidgets.QRadioButton(self.verticalLayoutWidget_3)
         self.radio_sel_roulette.setObjectName("radio_sel_roulette")
-        self.layout_mutation_3.addWidget(self.radio_sel_roulette)
+        self.layout_selection.addWidget(self.radio_sel_roulette)
         self.radio_sel_ranking = QtWidgets.QRadioButton(self.verticalLayoutWidget_3)
         self.radio_sel_ranking.setObjectName("radio_sel_ranking")
-        self.layout_mutation_3.addWidget(self.radio_sel_ranking)
+        self.layout_selection.addWidget(self.radio_sel_ranking)
         self.label_13 = QtWidgets.QLabel(self.centralwidget)
-        self.label_13.setGeometry(QtCore.QRect(40, 270, 91, 16))
+        self.label_13.setGeometry(QtCore.QRect(40, 230, 91, 16))
         self.label_13.setObjectName("label_13")
-        # User
+        # USER
         self.button_create_population = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.open_new_population_window())
         self.button_create_population.setEnabled(True)
-        self.button_create_population.setGeometry(QtCore.QRect(20, 290, 131, 31))
+        self.button_create_population.setGeometry(QtCore.QRect(20, 250, 131, 31))
         self.button_create_population.setCheckable(False)
         self.button_create_population.setObjectName("button_create_population")
         self.button_create_shopping_list = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.open_new_shopping_list_window())
         self.button_create_shopping_list.setEnabled(True)
-        self.button_create_shopping_list.setGeometry(QtCore.QRect(20, 330, 131, 31))
+        self.button_create_shopping_list.setGeometry(QtCore.QRect(20, 290, 131, 31))
         self.button_create_shopping_list.setCheckable(False)
         self.button_create_shopping_list.setObjectName("button_create_shopping_list")
+        self.verticalLayoutWidget_6 = QtWidgets.QWidget(self.centralwidget)
+        self.verticalLayoutWidget_6.setGeometry(QtCore.QRect(30, 350, 83, 101))
+        self.verticalLayoutWidget_6.setObjectName("verticalLayoutWidget_6")
+        self.layout_db = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_6)
+        self.layout_db.setContentsMargins(0, 0, 0, 0)
+        self.layout_db.setObjectName("layout_db")
+        self.radio_db_small = QtWidgets.QRadioButton(self.verticalLayoutWidget_6)
+        self.radio_db_small.setChecked(True)
+        self.radio_db_small.setObjectName("radio_db_small")
+        self.layout_db.addWidget(self.radio_db_small)
+        self.radio_db_medium = QtWidgets.QRadioButton(self.verticalLayoutWidget_6)
+        self.radio_db_medium.setObjectName("radio_db_medium")
+        self.layout_db.addWidget(self.radio_db_medium)
+        self.radio_db_big = QtWidgets.QRadioButton(self.verticalLayoutWidget_6)
+        self.radio_db_big.setObjectName("radio_db_big")
+        self.layout_db.addWidget(self.radio_db_big)
+        self.label_11 = QtWidgets.QLabel(self.centralwidget)
+        self.label_11.setGeometry(QtCore.QRect(20, 330, 101, 16))
+        self.label_11.setObjectName("label_11")
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
@@ -262,6 +276,10 @@ class Ui_MainWindow(qtw.QWidget):
         self.label_13.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:9pt; font-weight:600;\">Construction<br/></span></p><p align=\"center\"><br/></p></body></html>"))
         self.button_create_population.setText(_translate("MainWindow", "Create population"))
         self.button_create_shopping_list.setText(_translate("MainWindow", "Create shopping list"))
+        self.radio_db_small.setText(_translate("MainWindow", "Small"))
+        self.radio_db_medium.setText(_translate("MainWindow", "Medium"))
+        self.radio_db_big.setText(_translate("MainWindow", "Ranking"))
+        self.label_11.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:9pt; font-weight:600;\">Database size</span></p><p align=\"center\"><br/></p></body></html>"))
 
     def restart_parameters(self):
         print("Current algorithm.general_population")
@@ -317,6 +335,10 @@ class Ui_MainWindow(qtw.QWidget):
             split_i = new_shopping_list[i].split(': ')
             shopping_list.append((split_i[0], int(split_i[1])))
         algorithm.shopping_list = shopping_list
+        algorithm.main_inventory = algorithm.GeneralInventory(algorithm.path_to_inventory)
+        algorithm.main_sellers_base = algorithm.SellersBase(algorithm.main_inventory,
+                                                            algorithm.path_to_seller_base,
+                                                            algorithm.path_to_db)
         algorithm.main_client = algorithm.Client(0,
                                                  algorithm.shopping_list,
                                                  algorithm.budget,
@@ -326,13 +348,26 @@ class Ui_MainWindow(qtw.QWidget):
 
 
     def prepare_gui_parameters(self):
-        # PARAMETERS
+        # Parameters
         algorithm.population_size = int(self.txt_population_size.text())
         algorithm.parent_percentage = int(self.txt_parents_percentage.text()) / 100
         algorithm.chance_to_crossover = int(int(self.txt_crossover_chance.text()) / 100)
         algorithm.max_iters = int(self.txt_generation_number.text())
         algorithm.iters_without_change = int(self.txt_solution_accuracy.text())
         algorithm.budget = int(self.txt_budget.text())
+        # Database
+        if self.radio_db_small.isChecked():
+            algorithm.path_to_inventory = 'small_unique_items_file.csv'
+            algorithm.path_to_seller_base = 'small_unique_sellers.csv'
+            algorithm.path_to_db = 'database_small.csv'
+        elif self.radio_db_medium.isChecked():
+            algorithm.path_to_inventory = 'medium_unique_items_file.csv'
+            algorithm.path_to_seller_base = 'medium_unique_sellers.csv'
+            algorithm.path_to_db = 'database_medium.csv'
+        elif self.radio_db_big.isChecked():
+            algorithm.path_to_inventory = 'big_unique_items_file.csv'
+            algorithm.path_to_seller_base = 'big_unique_sellers.csv'
+            algorithm.path_to_db = 'database_big.csv'
         # Mutate
         if self.radio_mut_singular.isChecked():
             algorithm.mutation_type = 'singular'
