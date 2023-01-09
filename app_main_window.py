@@ -122,7 +122,7 @@ class Ui_MainWindow(qtw.QWidget):
         # DISCOUNT CHART
         self.layout_horizontal_discount_chart = QtWidgets.QHBoxLayout(self.frame_discount)
         self.layout_horizontal_discount_chart.setObjectName("layout_horizontal_discount_chart")
-        self.graph_widget_discount = pg.PlotWidget()
+        self.graph_widget_discount = pg.plot()
         self.layout_horizontal_discount_chart.addWidget(self.graph_widget_discount)
 
         self.frame_delivery = QtWidgets.QFrame(self.verticalLayoutWidget_5)
@@ -271,8 +271,8 @@ class Ui_MainWindow(qtw.QWidget):
         self.label_9.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:9pt; font-weight:600;\">Mutate</span></p></body></html>"))
         self.label_10.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:9pt; font-weight:600;\">Selection</span></p></body></html>"))
         self.radio_sel_tournament.setText(_translate("MainWindow", "Tournament"))
-        self.radio_sel_roulette.setText(_translate("MainWindow", "Roulette"))
-        self.radio_sel_ranking.setText(_translate("MainWindow", "Ranking"))
+        self.radio_sel_roulette.setText(_translate("MainWindow", "Ranking"))
+        self.radio_sel_ranking.setText(_translate("MainWindow", "Elite"))
         self.label_13.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:9pt; font-weight:600;\">Construction<br/></span></p><p align=\"center\"><br/></p></body></html>"))
         self.button_create_population.setText(_translate("MainWindow", "Create population"))
         self.button_create_shopping_list.setText(_translate("MainWindow", "Create shopping list"))
@@ -282,10 +282,16 @@ class Ui_MainWindow(qtw.QWidget):
         self.label_11.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:9pt; font-weight:600;\">Database size</span></p><p align=\"center\"><br/></p></body></html>"))
 
     def restart_parameters(self):
-        print("Current algorithm.general_population")
-        print(algorithm.general_population)
-        print("Current algorithm.shopping_list")
-        print(algorithm.shopping_list)
+        self.txt_population_size.setText('10')
+        self.txt_parents_percentage.setText('20')
+        self.txt_crossover_chance.setText('10')
+        self.txt_generation_number.setText('100')
+        self.txt_solution_accuracy.setText('15')
+        self.txt_budget.setText('2000')
+        self.radio_db_small.setChecked(True)
+        self.radio_mut_singular.setChecked(True)
+        self.radio_cro_every_2nd.setChecked(True)
+        self.radio_sel_tournament.setChecked(True)
 
     def print_population(self):
         string_to_print = ''
@@ -318,13 +324,13 @@ class Ui_MainWindow(qtw.QWidget):
         self.ui = Ui_window_create_new_shopping_list()
         self.ui.setupUi(self.window)
         columns = ['max amount']
-        rows = [f'item_{i}' for i in range(len(algorithm.maxes[2]))]
+        rows = [f'item_{i}' for i in range(len(algorithm.chosen_max))]
         self.ui.table_widget_items.setRowCount(len(rows))
         self.ui.table_widget_items.setColumnCount(len(columns))
         self.ui.table_widget_items.setVerticalHeaderLabels(rows)
         self.ui.table_widget_items.setHorizontalHeaderLabels(['Max Amount'])
         for i in range(len(rows)):
-            self.ui.table_widget_items.setItem(i, 0, QTableWidgetItem(str(algorithm.maxes[2][i])))
+            self.ui.table_widget_items.setItem(i, 0, QTableWidgetItem(str(algorithm.chosen_max[i])))
         self.ui.table_widget_items.setItemDelegateForColumn(0, ReadOnlyDelegate())
         self.ui.signal_create_new_shopping_list.connect(self.new_shopping_list_signal_handler)
         self.window.show()
@@ -346,7 +352,6 @@ class Ui_MainWindow(qtw.QWidget):
         algorithm.dict_of_sells = algorithm.main_sellers_base.get_sellers_with_items(algorithm.main_client.get_product_ids())
         algorithm.list_of_orders = algorithm.main_client.get_oder_quantity()
 
-
     def prepare_gui_parameters(self):
         # Parameters
         algorithm.population_size = int(self.txt_population_size.text())
@@ -357,14 +362,17 @@ class Ui_MainWindow(qtw.QWidget):
         algorithm.budget = int(self.txt_budget.text())
         # Database
         if self.radio_db_small.isChecked():
+            algorithm.chosen_max = algorithm.maxes[2]
             algorithm.path_to_inventory = 'small_unique_items_file.csv'
             algorithm.path_to_seller_base = 'small_unique_sellers.csv'
             algorithm.path_to_db = 'database_small.csv'
         elif self.radio_db_medium.isChecked():
+            algorithm.chosen_max = algorithm.maxes[1]
             algorithm.path_to_inventory = 'medium_unique_items_file.csv'
             algorithm.path_to_seller_base = 'medium_unique_sellers.csv'
             algorithm.path_to_db = 'database_medium.csv'
         elif self.radio_db_big.isChecked():
+            algorithm.chosen_max = algorithm.maxes[0]
             algorithm.path_to_inventory = 'big_unique_items_file.csv'
             algorithm.path_to_seller_base = 'big_unique_sellers.csv'
             algorithm.path_to_db = 'database_big.csv'
@@ -410,15 +418,50 @@ class Ui_MainWindow(qtw.QWidget):
 
     def create_algorithm_chart_tab(self, iterations, obj_function_values):
         self.graph_widget_algorithm.clear()
-        self.graph_widget_algorithm.plot(algorithm.np.arange(iterations - 1), obj_function_values)
+        self.graph_widget_algorithm.setBackground('w')
+        self.graph_widget_algorithm.setTitle("Criterion Function", color="d", size="30pt")
+        styles = {'color': 'd', 'font-size': '20px'}
+        self.graph_widget_algorithm.setLabel('left', 'Function values', **styles)
+        self.graph_widget_algorithm.setLabel('bottom', 'Iterations', **styles)
+        self.graph_widget_algorithm.showGrid(x=True, y=True)
+        pen = pg.mkPen(color=(255, 0, 0))
+        self.graph_widget_algorithm.plot(algorithm.np.arange(iterations - 1), obj_function_values, pen=pen)
 
-    def create_charts_tab(self):
-        apples_values = [10, 20, 30, 40]
-        bananas_values = [50, 60, 70, 80]
+    def create_charts_tab(self, solution_matrix):
+        sellers_ids = [i for i in range(len(solution_matrix[0]))]
+        values = []
+        for j in range(len(solution_matrix[0])):
+            values.append(0)
+            for i in range(len(solution_matrix)):
+                values[j] += solution_matrix[i, j]
         self.graph_widget_discount.clear()
+        self.graph_widget_discount.setBackground('w')
+        self.graph_widget_discount.setTitle("Items from sellers", color="r", size="30pt")
+        styles = {'color': 'd', 'font-size': '20px'}
+        self.graph_widget_discount.setLabel('left', 'Amount of items', **styles)
+        self.graph_widget_discount.setLabel('bottom', 'Seller id', **styles)
+        bar_graph = pg.BarGraphItem(x=sellers_ids, height=values, width=0.6)
+        self.graph_widget_discount.addItem(bar_graph)
+
+        delivery_values = []
+        for j in range(len(solution_matrix[0])):
+            list_of_items = []
+            for i in range(len(solution_matrix)):
+                product = solution_matrix[i][j]
+                if product > 0:
+                    list_of_items.append((i, product))
+            if len(list_of_items) != 0:
+                delivery_values.append(algorithm.main_sellers_base.get_seller_by_id(str(j)).get_delivery_price(list_of_items))
+            else:
+                delivery_values.append(0)
         self.graph_widget_delivery.clear()
-        self.graph_widget_discount.plot(apples_values, bananas_values)
-        self.graph_widget_delivery.plot(bananas_values, apples_values)
+        self.graph_widget_delivery.setBackground('w')
+        self.graph_widget_delivery.setTitle("Delivery costs", color="b", size="30pt")
+        styles = {'color': 'd', 'font-size': '20px'}
+        self.graph_widget_delivery.setLabel('left', 'Cost of delivery', **styles)
+        self.graph_widget_delivery.setLabel('bottom', 'Seller id', **styles)
+        bar_graph = pg.BarGraphItem(x=sellers_ids, height=delivery_values, width=0.6)
+        self.graph_widget_delivery.addItem(bar_graph)
 
     def gui_main_fun(self):
         self.prepare_gui_parameters()
@@ -426,7 +469,7 @@ class Ui_MainWindow(qtw.QWidget):
 
         self.create_solution_matrix_tab(current_best_solution.solution_matrix)
         self.create_algorithm_chart_tab(i_iter, obj_functions_to_plot)
-        self.create_charts_tab()
+        self.create_charts_tab(current_best_solution.solution_matrix)
 
 
 if __name__ == "__main__":

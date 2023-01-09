@@ -27,9 +27,10 @@ path_to_db = 'database_small.csv'
 maxes = [[267, 199, 314, 376, 284, 293, 238, 352, 268, 214, 218, 274, 246, 200, 321, 224, 373, 330, 346, 311, 306, 321, 264, 266, 236, 195, 230, 203, 336, 286, 277, 252, 251, 244, 288, 225, 199, 249, 212, 224, 314, 290, 404, 388, 303, 322, 266, 292, 266, 340],
          [157, 193, 184, 104, 179, 203, 147, 170, 210, 153, 141, 189, 133, 153, 184, 184, 159, 233, 86, 198, 196, 155, 175, 179, 209, 109, 120, 216, 166, 154],
          [148, 183, 77, 91, 157, 136, 94, 175, 127, 126, 84, 162, 205, 125, 162, 106, 122, 162, 122, 77]]
-
+chosen_max = maxes[2]
 main_inventory = GeneralInventory(path_to_inventory)
 main_sellers_base = SellersBase(main_inventory, path_to_seller_base, path_to_db)
+
 shopping_list = [('item_1', 7), ('item_2', 10), ('item_5', 2), ('item_6', 4), ('item_8', 6), ('item_9', 4), ('item_10', 1)]
 main_client = Client(0, shopping_list, budget, main_inventory)
 sol = Solution(main_sellers_base.sellers_list, main_inventory.product_list)
@@ -338,7 +339,7 @@ def main():
     obj_functions_to_plot = []
     i_iter = 1
     iter_counter = 0
-    starting_population = general_population  # mój pomysł - tworzenie tego za pomocą funkcji, wtedy łatwiej w testach
+    starting_population = deepcopy(general_population)  # mój pomysł - tworzenie tego za pomocą funkcji, wtedy łatwiej w testach
     current_best_solution = None
     current_lowest_obj_func = np.inf
     while i_iter <= max_iters and iter_counter <= iters_without_change:
@@ -403,12 +404,12 @@ def main():
                 if k == offspring_count:
                     break
             if k != offspring_count:
-                general_population.remove(comparison_pop[-1])
+                starting_population.remove(comparison_pop[-1])
                 worst_funcs.insert(k, func_i)
                 worst_funcs.pop()
                 comparison_pop.insert(k, offspring_i)
                 comparison_pop.pop()
-                general_population.append(comparison_pop[k])
+                starting_population.append(comparison_pop[k])
 
                 if func_i < current_lowest_obj_func:
                     iter_counter = 0
@@ -419,11 +420,8 @@ def main():
         i_iter += 1
         iter_counter += 1
         obj_functions_to_plot.append(current_lowest_obj_func)
-        # print(i_iter)
-    # print(current_best_solution)
-    # plt.figure()
-    # plt.plot(np.arange(i_iter - 1), obj_functions_to_plot)
-    # plt.show()
+
+    # general_population = []
     # general_population = general_population_copy #ewentualnie jakieś podmienianie na nowe
     return current_best_solution, current_lowest_obj_func, i_iter, obj_functions_to_plot
 
