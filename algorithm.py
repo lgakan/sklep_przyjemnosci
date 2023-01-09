@@ -42,6 +42,8 @@ for _ in range(population_size):
     sol.reset_solution()
 sol_mat = deepcopy(sol.solution_matrix)
 general_population_copy = deepcopy(general_population)  # to użyć gdzieś ewentualnie
+
+
 # Returns:
 # 1. ObjFunction value for parents
 # 2. Parents Solutions
@@ -112,81 +114,6 @@ def selection_ranking(population: list, amount, budget):
            [i for _, i in parents], \
            [i for i, _ in parents_sorted], \
            [i for _, i in parents_sorted]
-
-
-# def mutate_circle(matrix: np.array):
-#     m, n = np.shape(matrix)
-#     for i in range(m):
-#         for j in range(n):
-#             if j+1 >= n or i+1 >= m:
-#                 break
-#             elem = matrix[i][j+1]
-#             matrix[i][j+1] = matrix[i][j]
-#             elem1 = matrix[i+1][j+1]
-#             matrix[i+1][j+1] = elem
-#             elem2 = matrix[i+1][j]
-#             matrix[i+1][j] = elem1
-#             matrix[i][j] = elem2
-#     return matrix
-
-
-# def mutate_castling(matrix, type_mut='row'):
-#     m, n = np.shape(matrix)
-#     if type_mut == 'row':
-#         pivot = m // 2
-#         index_1 = randint(0, pivot-1)
-#         index_2 = randint(pivot, m-1)
-#         matrix[index_1], matrix[index_2] = matrix[index_2], matrix[index_1]
-#         return matrix
-#     if type_mut == 'col':
-#         pivot = n // 2
-#         index_1 = randint(0, pivot-1)
-#         index_2 = randint(pivot, m-1)
-#         for i in range(m):
-#             matrix[i][index_1], matrix[i][index_2] = matrix[i][index_2], matrix[i][index_1]
-#         return matrix
-
-
-def crossover_halves(matrix1: np.array, matrix2: np.array, type_cross='rows'):
-    m, n = np.shape(matrix1)
-    if type_cross == 'rows':
-        for i in range(m):
-            if type_cross == 'rows':
-                if i == m//2:
-                    break
-                for j in range(n):
-                    matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
-            elif type_cross == 'columns':
-                for j in range(n):
-                    if j == n // 2:
-                        break
-                    matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
-        return matrix1, matrix2
-
-
-def crossover_every_2nd(matrix1: np.array, matrix2: np.array, type_cross='rows'):
-    # m = len(matrix1)
-    # n = len(matrix1[0])
-    m, n = np.shape(matrix1)
-    if type_cross == 'rows':
-        for i in range(0, m, 2):
-            for j in range(n):
-                matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
-        return matrix1, matrix2
-    elif type_cross == 'columns':
-        for i in range(m):
-            for j in range(0, n, 2):
-                matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
-        return matrix1, matrix2
-
-
-def crossover_chess(matrix1, matrix2):
-    m, n = np.shape(matrix1)
-    for i in range(m):
-        for j in range(n):
-            if (i + j) % 2 != 0:
-                matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
-    return matrix1, matrix2
 
 
 # example of oder_list [('item_15', 7), ('item_16', 10)]
@@ -321,8 +248,9 @@ def create_report(csv_path: str, ordered_data: list):
 def main():
     obj_functions_to_plot = []
     i_iter = 1
+    i_best = i_iter - 1
     iter_counter = 0
-    starting_population = deepcopy(general_population)  # mój pomysł - tworzenie tego za pomocą funkcji, wtedy łatwiej w testach
+    starting_population = deepcopy(general_population)
     current_best_solution = None
     current_lowest_obj_func = np.inf
     while i_iter <= max_iters and iter_counter <= iters_without_change:
@@ -333,6 +261,7 @@ def main():
             if i_iter == 1:
                 current_lowest_obj_func = min(obj_funcs)
                 current_best_solution = temp_pop[obj_funcs.index(current_lowest_obj_func)]
+                obj_functions_to_plot.append(current_lowest_obj_func)
         elif selection_method == 'roulette':
             obj_funcs, temp_pop, worst_funcs, comparison_pop = selection_roulette(starting_population,
                                                                                   parent_percentage,
@@ -340,6 +269,7 @@ def main():
             if i_iter == 1:
                 current_lowest_obj_func = min(obj_funcs)
                 current_best_solution = temp_pop[obj_funcs.index(current_lowest_obj_func)]
+                obj_functions_to_plot.append(current_lowest_obj_func)
         else:
             obj_funcs, temp_pop, worst_funcs, comparison_pop = selection_ranking(starting_population,
                                                                                  parent_percentage,
@@ -347,6 +277,7 @@ def main():
             if i_iter == 1:
                 current_lowest_obj_func = obj_funcs[0]
                 current_best_solution = temp_pop[0]
+                obj_functions_to_plot.append(current_lowest_obj_func)
 
         if rd.random() > chance_to_crossover:
             baby_matrices = crossover_basic([i.get_solution_matrix() for i in temp_pop], len(main_client.get_order()))
@@ -382,6 +313,7 @@ def main():
                     iter_counter = 0
                     current_lowest_obj_func = func_i
                     current_best_solution = offspring_i
+                    i_best = i_iter - 1
             else:
                 break
         i_iter += 1
@@ -393,7 +325,7 @@ def main():
     # plt.plot(np.arange(i_iter - 1), obj_functions_to_plot)
     # plt.show()
     # general_population = general_population_copy #ewentualnie jakieś podmienianie na nowe
-    return current_best_solution, current_lowest_obj_func, i_iter
+    return current_best_solution, current_lowest_obj_func, i_best, obj_functions_to_plot
 
 
 if __name__ == '__main__':

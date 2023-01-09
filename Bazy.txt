@@ -1,0 +1,11 @@
+1. Rozmiar
+2. Lokalizacja (różnorodność przesyłek)
+3. Różnorodność cen w obrębie lokalizacji
+4. Sprzedawcy z wysokimi cenami mają wyższe zniżki ilościowe
+
+
+
+
+1. Baza mała z zachowaniem różnorodności\ 15x20
+2. Baza duża z zachowaniem różnorodności  30x50
+3. Baza średnia bez różnorodnosci 20x30
