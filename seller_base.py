@@ -15,11 +15,11 @@ def function_from_string(function_string, func_type: str):
 
 
 class SellersBase:
-    def __init__(self, inventory):
-        self.file_reader = FileReader('unique_sellers.csv')
+    def __init__(self, inventory, path_to_seller_base, path_to_db):
+        self.file_reader = FileReader(path_to_seller_base)
         self.sellers_list = []
         self.add_sellers_from_file(global_inventory=inventory)
-        self.add_products_to_sellers()
+        self.add_products_to_sellers(path_to_db)
 
     def add_sellers_from_file(self, global_inventory):
         for i in self.file_reader.get_file_records():
@@ -39,8 +39,8 @@ class SellersBase:
                 if str(i.id) == id_seller:
                     return i
 
-    def add_products_to_sellers(self):
-        file = FileReader('database.csv')
+    def add_products_to_sellers(self, path_to_db):
+        file = FileReader(path_to_db)
         for i in file.get_file_records():
             self.get_seller_by_id(i['id_seller']).store[i['id_item']] = (i['price'], i['count'])
 

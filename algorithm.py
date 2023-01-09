@@ -10,26 +10,29 @@ from client import Client
 from seller_base import SellersBase
 from general_inventory import GeneralInventory
 from copy import deepcopy
-import matplotlib.pyplot as plt
 
 population_size = 10
 selection_method = 'ranking'
-crossover_method = ('basic','rows_idx_and_number')
+crossover_method = ('basic', 'rows_idx_and_number')
 # Parent_count*(Parent_count - 1) < Population_size
 parent_percentage = 0.2
 chance_to_crossover = 0.5
 mutation_type = 'singular'
 max_iters = 100
 iters_without_change = 15
-main_inventory = GeneralInventory()
-main_sellers_base = SellersBase(main_inventory)
-main_client = Client(0, [('item_1', 7),
-                         ('item_2', 10),
-                         ('item_5', 2),
-                         ('item_6', 4),
-                         ('item_8', 6),
-                         ('item_9', 4),
-                         ('item_10', 1)], 1600, main_inventory)
+budget = 1600
+path_to_inventory = 'small_unique_items_file.csv'
+path_to_seller_base = 'small_unique_sellers.csv'
+path_to_db = 'database_small.csv'
+maxes = [[267, 199, 314, 376, 284, 293, 238, 352, 268, 214, 218, 274, 246, 200, 321, 224, 373, 330, 346, 311, 306, 321, 264, 266, 236, 195, 230, 203, 336, 286, 277, 252, 251, 244, 288, 225, 199, 249, 212, 224, 314, 290, 404, 388, 303, 322, 266, 292, 266, 340],
+         [157, 193, 184, 104, 179, 203, 147, 170, 210, 153, 141, 189, 133, 153, 184, 184, 159, 233, 86, 198, 196, 155, 175, 179, 209, 109, 120, 216, 166, 154],
+         [148, 183, 77, 91, 157, 136, 94, 175, 127, 126, 84, 162, 205, 125, 162, 106, 122, 162, 122, 77]]
+chosen_max = maxes[2]
+main_inventory = GeneralInventory(path_to_inventory)
+main_sellers_base = SellersBase(main_inventory, path_to_seller_base, path_to_db)
+
+shopping_list = [('item_1', 7), ('item_2', 10), ('item_5', 2), ('item_6', 4), ('item_8', 6), ('item_9', 4), ('item_10', 1)]
+main_client = Client(0, shopping_list, budget, main_inventory)
 sol = Solution(main_sellers_base.sellers_list, main_inventory.product_list)
 dict_of_sells = main_sellers_base.get_sellers_with_items(main_client.get_product_ids())
 list_of_orders = main_client.get_oder_quantity()
@@ -149,21 +152,21 @@ def selection_ranking(population: list, amount, budget):
 #         return matrix
 
 
-def crossover_halves(matrix1: np.array, matrix2: np.array, type_cross='rows'):
-    m, n = np.shape(matrix1)
-    if type_cross == 'rows':
-        for i in range(m):
-            if type_cross == 'rows':
-                if i == m//2:
-                    break
-                for j in range(n):
-                    matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
-            elif type_cross == 'columns':
-                for j in range(n):
-                    if j == n // 2:
-                        break
-                    matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
-        return matrix1, matrix2
+# def crossover_halves(matrix1: np.array, matrix2: np.array, type_cross='rows'):
+#     m, n = np.shape(matrix1)
+#     if type_cross == 'rows':
+#         for i in range(m):
+#             if type_cross == 'rows':
+#                 if i == m//2:
+#                     break
+#                 for j in range(n):
+#                     matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
+#             elif type_cross == 'columns':
+#                 for j in range(n):
+#                     if j == n // 2:
+#                         break
+#                     matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
+#         return matrix1, matrix2
 
 
 def crossover_every_2nd(numpy_matrices_list: list, type_cross='rows'):
@@ -190,13 +193,13 @@ def crossover_every_2nd(numpy_matrices_list: list, type_cross='rows'):
     return [np.array(i) for i in list_to_return]
 
 
-def crossover_chess(matrix1, matrix2):
-    m, n = np.shape(matrix1)
-    for i in range(m):
-        for j in range(n):
-            if (i + j) % 2 != 0:
-                matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
-    return matrix1, matrix2
+# def crossover_chess(matrix1, matrix2):
+#     m, n = np.shape(matrix1)
+#     for i in range(m):
+#         for j in range(n):
+#             if (i + j) % 2 != 0:
+#                 matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
+#     return matrix1, matrix2
 
 
 # example of oder_list [('item_15', 7), ('item_16', 10)]
@@ -253,8 +256,8 @@ def get_penalty_func(solution: ObjFunction, budget):
         return obj_func[0]
 
 
-def mutate_singular_product(sol_matrix: np.array):
-    products_ordered = main_client.get_product_ids()
+def mutate_singular_product(sol_matrix: np.array, client):
+    products_ordered = client.get_product_ids()
     candidates_for_mutation = []
     chosen_product = None
     chosen_seller_to_give_up = None
@@ -292,8 +295,8 @@ def mutate_singular_product(sol_matrix: np.array):
     return sol_matrix
 
 
-def mutate_with_seller_elimination(sol_matrix: np.array):
-    products_ordered = main_client.get_product_ids()
+def mutate_with_seller_elimination(sol_matrix: np.array, client):
+    products_ordered = client.get_product_ids()
     chosen_product = rd.choice(products_ordered)
     # print('Chosen product')
     # print(chosen_product)
@@ -336,7 +339,7 @@ def main():
     obj_functions_to_plot = []
     i_iter = 1
     iter_counter = 0
-    starting_population = general_population  # mój pomysł - tworzenie tego za pomocą funkcji, wtedy łatwiej w testach
+    starting_population = deepcopy(general_population)  # mój pomysł - tworzenie tego za pomocą funkcji, wtedy łatwiej w testach
     current_best_solution = None
     current_lowest_obj_func = np.inf
     while i_iter <= max_iters and iter_counter <= iters_without_change:
@@ -354,14 +357,15 @@ def main():
             if i_iter == 1:
                 current_lowest_obj_func = min(obj_funcs)
                 current_best_solution = temp_pop[obj_funcs.index(current_lowest_obj_func)]
-        else:
+        elif selection_method == 'ranking':
             obj_funcs, temp_pop, worst_funcs, comparison_pop = selection_ranking(starting_population,
                                                                                  parent_percentage,
                                                                                  main_client.budget)
             if i_iter == 1:
                 current_lowest_obj_func = obj_funcs[0]
                 current_best_solution = temp_pop[0]
-
+        else:
+            obj_funcs, temp_pop, worst_funcs, comparison_pop = [None] * 4
         if rd.random() > chance_to_crossover:
             if crossover_method == ('basic', 'rows_idx'):
                 baby_matrices = crossover_basic([i.get_solution_matrix() for i in temp_pop],
@@ -382,9 +386,9 @@ def main():
         else:
             baby_matrices = [i.get_solution_matrix() for i in temp_pop]
         if mutation_type == 'singular':
-            baby_matrices = [mutate_singular_product(np.array(i)) for i in baby_matrices]
+            baby_matrices = [mutate_singular_product(np.array(i), main_client) for i in baby_matrices]
         else:
-            baby_matrices = [mutate_with_seller_elimination(np.array(i)) for i in baby_matrices]
+            baby_matrices = [mutate_with_seller_elimination(np.array(i), main_client) for i in baby_matrices]
         offspring = []
         for baby in baby_matrices:
             sol.solution_matrix = deepcopy(baby)
@@ -400,12 +404,12 @@ def main():
                 if k == offspring_count:
                     break
             if k != offspring_count:
-                general_population.remove(comparison_pop[-1])
+                starting_population.remove(comparison_pop[-1])
                 worst_funcs.insert(k, func_i)
                 worst_funcs.pop()
                 comparison_pop.insert(k, offspring_i)
                 comparison_pop.pop()
-                general_population.append(comparison_pop[k])
+                starting_population.append(comparison_pop[k])
 
                 if func_i < current_lowest_obj_func:
                     iter_counter = 0
@@ -416,13 +420,10 @@ def main():
         i_iter += 1
         iter_counter += 1
         obj_functions_to_plot.append(current_lowest_obj_func)
-        # print(i_iter)
-    # print(current_best_solution)
-    plt.figure()
-    plt.plot(np.arange(i_iter - 1), obj_functions_to_plot)
-    plt.show()
+
+    # general_population = []
     # general_population = general_population_copy #ewentualnie jakieś podmienianie na nowe
-    return current_best_solution, current_lowest_obj_func, i_iter
+    return current_best_solution, current_lowest_obj_func, i_iter, obj_functions_to_plot
 
 
 if __name__ == '__main__':

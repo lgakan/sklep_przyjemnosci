@@ -3,8 +3,8 @@ from product import Product
 
 
 class GeneralInventory:
-    def __init__(self):
-        self.file_reader = FileReader('unique_items_file.csv')
+    def __init__(self, path_to_inventory):
+        self.file_reader = FileReader(path_to_inventory)
         self.product_list = []
         self.add_products_from_file()
 

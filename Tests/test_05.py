@@ -241,8 +241,8 @@ def get_penalty_func(solution: ObjFunction, budget):
         return obj_func[0]
 
 
-def mutate_singular_product(sol_matrix: np.array):
-    products_ordered = main_client.get_product_ids()
+def mutate_singular_product(sol_matrix: np.array, client):
+    products_ordered = client.get_product_ids()
     candidates_for_mutation = []
     chosen_product = None
     chosen_seller_to_give_up = None
@@ -355,7 +355,7 @@ def main():
         else:
             baby_matrices = [i.get_solution_matrix() for i in temp_pop]
         if mutation_type == 'singular':
-            baby_matrices = [mutate_singular_product(np.array(i)) for i in baby_matrices]
+            baby_matrices = [mutate_singular_product(np.array(i), main_client) for i in baby_matrices]
         else:
             baby_matrices = [mutate_with_seller_elimination(np.array(i)) for i in baby_matrices]
         offspring = []

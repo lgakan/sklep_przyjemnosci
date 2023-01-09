@@ -22,7 +22,10 @@ class ObjFunction:
                 product = self.solution.solution_matrix[i][j]
                 if product > 0:
                     list_of_items.append((i, product))
-            sj = self.seller_base.get_seller_by_id(str(j)).get_delivery_price(list_of_items)
+            if len(list_of_items) != 0:
+                sj = self.seller_base.get_seller_by_id(str(j)).get_delivery_price(list_of_items)
+            else:
+                sj = 0
             new_prices = self.seller_base.get_seller_by_id(str(j)).get_discounted_price(list_of_items)
             column_values.append(sj + sum(new_prices))
 
