@@ -1,12 +1,20 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtWidgets
 import sys
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from PyQt5.QtWidgets import QTableWidgetItem
+from PyQt5.QtWidgets import QTableWidgetItem, QStyledItemDelegate
+from PyQt5 import QtWidgets as qtw
+from app_new_population_window import Ui_window_create_new_population
+from app_new_shopping_list_window import Ui_window_create_new_shopping_list
 import algorithm
 
 
-class Ui_MainWindow(object):
+class ReadOnlyDelegate(QStyledItemDelegate):
+    def createEditor(self, parent, option, index):
+        return
+
+
+class Ui_MainWindow(qtw.QWidget):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1125, 892)
@@ -93,7 +101,7 @@ class Ui_MainWindow(object):
         self.button_start = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.gui_main_fun())
         self.button_start.setGeometry(QtCore.QRect(50, 30, 75, 23))
         self.button_start.setObjectName("button_start")
-        self.button_restart = QtWidgets.QPushButton(self.centralwidget)
+        self.button_restart = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.restart_parameters())
         self.button_restart.setGeometry(QtCore.QRect(40, 820, 75, 23))
         self.button_restart.setObjectName("button_restart")
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
@@ -201,12 +209,13 @@ class Ui_MainWindow(object):
         self.label_13 = QtWidgets.QLabel(self.centralwidget)
         self.label_13.setGeometry(QtCore.QRect(40, 270, 91, 16))
         self.label_13.setObjectName("label_13")
-        self.button_create_population = QtWidgets.QPushButton(self.centralwidget)
+        # User
+        self.button_create_population = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.open_new_population_window())
         self.button_create_population.setEnabled(True)
         self.button_create_population.setGeometry(QtCore.QRect(20, 290, 131, 31))
         self.button_create_population.setCheckable(False)
         self.button_create_population.setObjectName("button_create_population")
-        self.button_create_shopping_list = QtWidgets.QPushButton(self.centralwidget)
+        self.button_create_shopping_list = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.open_new_shopping_list_window())
         self.button_create_shopping_list.setEnabled(True)
         self.button_create_shopping_list.setGeometry(QtCore.QRect(20, 330, 131, 31))
         self.button_create_shopping_list.setCheckable(False)
@@ -223,7 +232,7 @@ class Ui_MainWindow(object):
         self.label.setText(_translate("MainWindow", "Population size"))
         self.txt_population_size.setText(_translate("MainWindow", "10"))
         self.label_2.setText(_translate("MainWindow", "Parents [%]"))
-        self.txt_parents_percentage.setText(_translate("MainWindow", "2"))
+        self.txt_parents_percentage.setText(_translate("MainWindow", "20"))
         self.label_3.setText(_translate("MainWindow", "Crossover chance [%]"))
         self.txt_crossover_chance.setText(_translate("MainWindow", "10"))
         self.label_4.setText(_translate("MainWindow", "Number of generations"))
@@ -254,14 +263,77 @@ class Ui_MainWindow(object):
         self.button_create_population.setText(_translate("MainWindow", "Create population"))
         self.button_create_shopping_list.setText(_translate("MainWindow", "Create shopping list"))
 
+    def restart_parameters(self):
+        print("Current algorithm.general_population")
+        print(algorithm.general_population)
+        print("Current algorithm.shopping_list")
+        print(algorithm.shopping_list)
+
+    def print_population(self):
+        string_to_print = ''
+        for i in range(len(algorithm.general_population)):
+            string_to_print = string_to_print + f'Matrix_{i}:\n'
+            string_to_print = string_to_print + str(algorithm.general_population[i].solution_matrix) + '\n\n'
+        return string_to_print
+
+    def open_new_population_window(self):
+        self.window = QtWidgets.QMainWindow()
+        self.ui = Ui_window_create_new_population()
+        self.ui.setupUi(self.window)
+        self.ui.text_browser_population.setText(self.print_population())
+        self.ui.signal_create_new_population_clicked.connect(self.new_population_signal_handler)
+        self.window.show()
+
+    def new_population_signal_handler(self, new_population_signal):
+        new_general_population = []
+        for _ in range(int(self.txt_population_size.text())):
+            algorithm.sol.get_starting_solution(algorithm.dict_of_sells,
+                                                algorithm.list_of_orders,
+                                                'random')
+            new_general_population.append(algorithm.deepcopy(algorithm.sol))
+            algorithm.sol.reset_solution()
+        algorithm.general_population = new_general_population
+        self.ui.text_browser_population.setText(self.print_population())
+
+
+    def open_new_shopping_list_window(self):
+        self.window = QtWidgets.QMainWindow()
+        self.ui = Ui_window_create_new_shopping_list()
+        self.ui.setupUi(self.window)
+        columns = ['max amount']
+        rows = [f'item_{i}' for i in range(len(algorithm.maxes[2]))]
+        self.ui.table_widget_items.setRowCount(len(rows))
+        self.ui.table_widget_items.setColumnCount(len(columns))
+        self.ui.table_widget_items.setVerticalHeaderLabels(rows)
+        self.ui.table_widget_items.setHorizontalHeaderLabels(['Max Amount'])
+        for i in range(len(rows)):
+            self.ui.table_widget_items.setItem(i, 0, QTableWidgetItem(str(algorithm.maxes[2][i])))
+        self.ui.table_widget_items.setItemDelegateForColumn(0, ReadOnlyDelegate())
+        self.ui.signal_create_new_shopping_list.connect(self.new_shopping_list_signal_handler)
+        self.window.show()
+
+    def new_shopping_list_signal_handler(self, new_shopping_list):
+        shopping_list = []
+        for i in range(len(new_shopping_list)):
+            split_i = new_shopping_list[i].split(': ')
+            shopping_list.append((split_i[0], int(split_i[1])))
+        algorithm.shopping_list = shopping_list
+        algorithm.main_client = algorithm.Client(0,
+                                                 algorithm.shopping_list,
+                                                 algorithm.budget,
+                                                 algorithm.main_inventory)
+        algorithm.dict_of_sells = algorithm.main_sellers_base.get_sellers_with_items(algorithm.main_client.get_product_ids())
+        algorithm.list_of_orders = algorithm.main_client.get_oder_quantity()
+
+
     def prepare_gui_parameters(self):
         # PARAMETERS
         algorithm.population_size = int(self.txt_population_size.text())
         algorithm.parent_percentage = int(self.txt_parents_percentage.text()) / 100
-        algorithm.chance_to_crossover = int(self.txt_crossover_chance.text()) / 100
+        algorithm.chance_to_crossover = int(int(self.txt_crossover_chance.text()) / 100)
         algorithm.max_iters = int(self.txt_generation_number.text())
-        # CONSTRUCTION
-        # TODO: Implement it
+        algorithm.iters_without_change = int(self.txt_solution_accuracy.text())
+        algorithm.budget = int(self.txt_budget.text())
         # Mutate
         if self.radio_mut_singular.isChecked():
             algorithm.mutation_type = 'singular'
@@ -288,21 +360,26 @@ class Ui_MainWindow(object):
         print(f'parent_percentage: {algorithm.parent_percentage}')
         print(f'chance_to_crossover: {algorithm.chance_to_crossover}')
         print(f'max_iters: {algorithm.max_iters}')
+        print(f'iters_without_change: {algorithm.iters_without_change}')
+        print(f'budget: {algorithm.budget}')
         print(f'mutation_type: {algorithm.mutation_type}')
         print(f'crossover_method: {algorithm.crossover_method}')
         print(f'selection_method: {algorithm.selection_method}')
 
-    def create_solution_matrix_tab(self):
-        products = [f'product_{i}' for i in range(20)]
-        sellers = [f'seller_{i}' for i in range(20)]
-        self.table_widget_solution_matrix.setRowCount(len(products))
-        self.table_widget_solution_matrix.setColumnCount(len(sellers))
-        for i in range(len(products)):
-            for j in range(len(sellers)):
-                self.table_widget_solution_matrix.setItem(i, j, QTableWidgetItem(str((i, j))))
+    def create_solution_matrix_tab(self, solution_matrix):
+        self.table_widget_solution_matrix.setRowCount(len(solution_matrix))
+        self.table_widget_solution_matrix.setColumnCount(len(solution_matrix[0]))
+        for i in range(len(solution_matrix)):
+            for j in range(len(solution_matrix[0])):
+                self.table_widget_solution_matrix.setItem(i, j, QTableWidgetItem(str(solution_matrix[i, j])))
+        self.table_widget_solution_matrix.setEnabled(False)
 
-    def create_algorithm_chart_tab(self):
+    def create_algorithm_chart_tab(self, iterations, obj_function_values):
         self.figure_algorithm.clear()
+        # plt.plot(algorithm.np.arange(iterations - 1), obj_function_values)
+        # plt.xlabel('iterations')
+        # plt.ylabel('Function values')
+        # plt.title('Objective function')
         oranges = ['9', '10', '11', '12']
         oranges_values = [90, 100, 110, 120]
         plt.bar(oranges, oranges_values, color='purple', width=0.4)
@@ -331,8 +408,11 @@ class Ui_MainWindow(object):
 
     def gui_main_fun(self):
         self.prepare_gui_parameters()
-        self.create_algorithm_chart_tab()
-        self.create_solution_matrix_tab()
+        print(algorithm.shopping_list)
+        current_best_solution, current_lowest_obj_func, i_iter, obj_functions_to_plot = algorithm.main()
+
+        self.create_solution_matrix_tab(current_best_solution.solution_matrix)
+        self.create_algorithm_chart_tab(i_iter, obj_functions_to_plot)
         self.create_charts_tab()
 
 

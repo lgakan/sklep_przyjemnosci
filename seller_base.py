@@ -16,7 +16,7 @@ def function_from_string(function_string, func_type: str):
 
 class SellersBase:
     def __init__(self, inventory):
-        self.file_reader = FileReader('unique_sellers.csv')
+        self.file_reader = FileReader('small_unique_sellers.csv')
         self.sellers_list = []
         self.add_sellers_from_file(global_inventory=inventory)
         self.add_products_to_sellers()
@@ -40,7 +40,7 @@ class SellersBase:
                     return i
 
     def add_products_to_sellers(self):
-        file = FileReader('database.csv')
+        file = FileReader('database_small.csv')
         for i in file.get_file_records():
             self.get_seller_by_id(i['id_seller']).store[i['id_item']] = (i['price'], i['count'])
 

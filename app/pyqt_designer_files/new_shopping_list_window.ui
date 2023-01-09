@@ -23,7 +23,7 @@
       <item>
        <layout class="QVBoxLayout" name="layout_right">
         <item>
-         <widget class="QListView" name="list_widget_shopping_list"/>
+         <widget class="QListWidget" name="list_widget_shopping_list"/>
         </item>
         <item>
          <layout class="QFormLayout" name="layout_right_inputs">
@@ -36,12 +36,12 @@
           <item row="0" column="0">
            <widget class="QLabel" name="label">
             <property name="text">
-             <string>Item index</string>
+             <string>Item name</string>
             </property>
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QLineEdit" name="txt_item_idx">
+           <widget class="QLineEdit" name="txt_item_name">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -49,7 +49,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>1</string>
+             <string>product_1</string>
             </property>
            </widget>
           </item>
@@ -99,6 +99,13 @@
            </widget>
           </item>
          </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="button_submit_new_shopping_list">
+          <property name="text">
+           <string>Submit new shopping list</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>

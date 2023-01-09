@@ -10,7 +10,6 @@ from client import Client
 from seller_base import SellersBase
 from general_inventory import GeneralInventory
 from copy import deepcopy
-import matplotlib.pyplot as plt
 
 population_size = 10
 selection_method = 'ranking'
@@ -21,15 +20,15 @@ chance_to_crossover = 0.5
 mutation_type = 'singular'
 max_iters = 100
 iters_without_change = 15
+budget = 1600
+maxes = [[267, 199, 314, 376, 284, 293, 238, 352, 268, 214, 218, 274, 246, 200, 321, 224, 373, 330, 346, 311, 306, 321, 264, 266, 236, 195, 230, 203, 336, 286, 277, 252, 251, 244, 288, 225, 199, 249, 212, 224, 314, 290, 404, 388, 303, 322, 266, 292, 266, 340],
+         [157, 193, 184, 104, 179, 203, 147, 170, 210, 153, 141, 189, 133, 153, 184, 184, 159, 233, 86, 198, 196, 155, 175, 179, 209, 109, 120, 216, 166, 154],
+         [148, 183, 77, 91, 157, 136, 94, 175, 127, 126, 84, 162, 205, 125, 162, 106, 122, 162, 122, 77]]
+
 main_inventory = GeneralInventory()
 main_sellers_base = SellersBase(main_inventory)
-main_client = Client(0, [('item_1', 7),
-                         ('item_2', 10),
-                         ('item_5', 2),
-                         ('item_6', 4),
-                         ('item_8', 6),
-                         ('item_9', 4),
-                         ('item_10', 1)], 1600, main_inventory)
+shopping_list = [('item_1', 7), ('item_2', 10), ('item_5', 2), ('item_6', 4), ('item_8', 6), ('item_9', 4), ('item_10', 1)]
+main_client = Client(0, shopping_list, budget, main_inventory)
 sol = Solution(main_sellers_base.sellers_list, main_inventory.product_list)
 dict_of_sells = main_sellers_base.get_sellers_with_items(main_client.get_product_ids())
 list_of_orders = main_client.get_oder_quantity()
@@ -253,8 +252,8 @@ def get_penalty_func(solution: ObjFunction, budget):
         return obj_func[0]
 
 
-def mutate_singular_product(sol_matrix: np.array):
-    products_ordered = main_client.get_product_ids()
+def mutate_singular_product(sol_matrix: np.array, client):
+    products_ordered = client.get_product_ids()
     candidates_for_mutation = []
     chosen_product = None
     chosen_seller_to_give_up = None
@@ -292,8 +291,8 @@ def mutate_singular_product(sol_matrix: np.array):
     return sol_matrix
 
 
-def mutate_with_seller_elimination(sol_matrix: np.array):
-    products_ordered = main_client.get_product_ids()
+def mutate_with_seller_elimination(sol_matrix: np.array, client):
+    products_ordered = client.get_product_ids()
     chosen_product = rd.choice(products_ordered)
     # print('Chosen product')
     # print(chosen_product)
@@ -363,7 +362,6 @@ def main():
                 current_best_solution = temp_pop[0]
         else:
             obj_funcs, temp_pop, worst_funcs, comparison_pop = [None] * 4
-
         if rd.random() > chance_to_crossover:
             if crossover_method == ('basic', 'rows_idx'):
                 baby_matrices = crossover_basic([i.get_solution_matrix() for i in temp_pop],
@@ -384,9 +382,9 @@ def main():
         else:
             baby_matrices = [i.get_solution_matrix() for i in temp_pop]
         if mutation_type == 'singular':
-            baby_matrices = [mutate_singular_product(np.array(i)) for i in baby_matrices]
+            baby_matrices = [mutate_singular_product(np.array(i), main_client) for i in baby_matrices]
         else:
-            baby_matrices = [mutate_with_seller_elimination(np.array(i)) for i in baby_matrices]
+            baby_matrices = [mutate_with_seller_elimination(np.array(i), main_client) for i in baby_matrices]
         offspring = []
         for baby in baby_matrices:
             sol.solution_matrix = deepcopy(baby)
@@ -420,11 +418,11 @@ def main():
         obj_functions_to_plot.append(current_lowest_obj_func)
         # print(i_iter)
     # print(current_best_solution)
-    plt.figure()
-    plt.plot(np.arange(i_iter - 1), obj_functions_to_plot)
-    plt.show()
+    # plt.figure()
+    # plt.plot(np.arange(i_iter - 1), obj_functions_to_plot)
+    # plt.show()
     # general_population = general_population_copy #ewentualnie jakieś podmienianie na nowe
-    return current_best_solution, current_lowest_obj_func, i_iter
+    return current_best_solution, current_lowest_obj_func, i_iter, obj_functions_to_plot
 
 
 if __name__ == '__main__':
