@@ -1,4 +1,5 @@
 from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtGui
 import sys
 from PyQt5.QtWidgets import QTableWidgetItem, QStyledItemDelegate
 from PyQt5 import QtWidgets as qtw
@@ -242,7 +243,8 @@ class Ui_MainWindow(qtw.QWidget):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "BLS - Best Lego Shop"))
+        MainWindow.setWindowIcon(QtGui.QIcon('icon.png'))
         self.label.setText(_translate("MainWindow", "Population size"))
         self.txt_population_size.setText(_translate("MainWindow", "10"))
         self.label_2.setText(_translate("MainWindow", "Parents [%]"))
@@ -278,7 +280,7 @@ class Ui_MainWindow(qtw.QWidget):
         self.button_create_shopping_list.setText(_translate("MainWindow", "Create shopping list"))
         self.radio_db_small.setText(_translate("MainWindow", "Small"))
         self.radio_db_medium.setText(_translate("MainWindow", "Medium"))
-        self.radio_db_big.setText(_translate("MainWindow", "Big"))
+        self.radio_db_big.setText(_translate("MainWindow", "Large"))
         self.label_11.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:9pt; font-weight:600;\">Database size</span></p><p align=\"center\"><br/></p></body></html>"))
 
     def restart_parameters(self):
