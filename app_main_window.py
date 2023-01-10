@@ -416,7 +416,6 @@ class Ui_MainWindow(qtw.QWidget):
         for i in range(len(solution_matrix)):
             for j in range(len(solution_matrix[0])):
                 self.table_widget_solution_matrix.setItem(i, j, QTableWidgetItem(str(solution_matrix[i, j])))
-        self.table_widget_solution_matrix.setEnabled(False)
 
     def create_algorithm_chart_tab(self, iterations, obj_function_values):
         self.graph_widget_algorithm.clear()
