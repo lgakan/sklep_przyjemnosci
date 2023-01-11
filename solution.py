@@ -21,7 +21,6 @@ class Solution:
                     self.solution_matrix[product_row][seller_id] = slots
                     quantity_from_buyer -= slots
                     j += 1
-        # TODO: 2
         elif construct_type == 'random':
             for i, (product_row, values) in enumerate(dict_of_items_with_sellers.items()):
                 input_list_of_sellers = np.array(self.solution_matrix[product_row])

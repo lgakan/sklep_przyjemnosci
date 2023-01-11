@@ -38,9 +38,7 @@ class Ui_window_create_new_population(qtw.QWidget):
         self.button_create_new_population.setText(_translate("window_create_new_population", "Create_new_population"))
 
     def create_new_population_fun(self):
-        # new_population = 'new very big population :)'
         self.signal_create_new_population_clicked.emit(True)
-        # self.text_browser_population.setText(new_population)
 
 
 if __name__ == "__main__":

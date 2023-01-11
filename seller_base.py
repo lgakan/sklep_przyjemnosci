@@ -60,9 +60,6 @@ class SellersBase:
                 dict_of_sellers[item_id] = (list_of_sellers[-1])
         return dict_of_sellers
 
-    # TODO: Implement later
-    # def add_seller_to_seller_base(self):
-
     def __str__(self):
         list_of_sth = ""
         for line in self.sellers_list:

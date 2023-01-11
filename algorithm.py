@@ -11,6 +11,8 @@ from seller_base import SellersBase
 from general_inventory import GeneralInventory
 from copy import deepcopy
 
+
+new_population_created = False
 population_size = 10
 selection_method = 'ranking'
 crossover_method = ('basic', 'rows_idx_and_number')
@@ -21,13 +23,17 @@ mutation_type = 'singular'
 max_iters = 100
 iters_without_change = 15
 budget = 1600
-path_to_inventory = 'small_unique_items_file.csv'
-path_to_seller_base = 'small_unique_sellers.csv'
-path_to_db = 'database_small.csv'
 maxes = [[267, 199, 314, 376, 284, 293, 238, 352, 268, 214, 218, 274, 246, 200, 321, 224, 373, 330, 346, 311, 306, 321, 264, 266, 236, 195, 230, 203, 336, 286, 277, 252, 251, 244, 288, 225, 199, 249, 212, 224, 314, 290, 404, 388, 303, 322, 266, 292, 266, 340],
          [157, 193, 184, 104, 179, 203, 147, 170, 210, 153, 141, 189, 133, 153, 184, 184, 159, 233, 86, 198, 196, 155, 175, 179, 209, 109, 120, 216, 166, 154],
          [148, 183, 77, 91, 157, 136, 94, 175, 127, 126, 84, 162, 205, 125, 162, 106, 122, 162, 122, 77]]
-chosen_max = maxes[2]
+# path_to_inventory = 'small_unique_items_file.csv'
+# path_to_seller_base = 'small_unique_sellers.csv'
+# path_to_db = 'database_small.csv'
+# chosen_max = maxes[2]
+path_to_inventory = 'medium_unique_items_file.csv'
+path_to_seller_base = 'medium_unique_sellers.csv'
+path_to_db = 'database_medium.csv'
+chosen_max = maxes[1]
 main_inventory = GeneralInventory(path_to_inventory)
 main_sellers_base = SellersBase(main_inventory, path_to_seller_base, path_to_db)
 

@@ -222,14 +222,14 @@ class Ui_MainWindow(qtw.QWidget):
         self.layout_db = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_6)
         self.layout_db.setContentsMargins(0, 0, 0, 0)
         self.layout_db.setObjectName("layout_db")
-        self.radio_db_small = QtWidgets.QRadioButton(self.verticalLayoutWidget_6)
+        self.radio_db_small = QtWidgets.QRadioButton(self.verticalLayoutWidget_6, clicked=lambda: self.click_small_db())
         self.radio_db_small.setChecked(True)
         self.radio_db_small.setObjectName("radio_db_small")
         self.layout_db.addWidget(self.radio_db_small)
-        self.radio_db_medium = QtWidgets.QRadioButton(self.verticalLayoutWidget_6)
+        self.radio_db_medium = QtWidgets.QRadioButton(self.verticalLayoutWidget_6, clicked=lambda: self.click_medium_db())
         self.radio_db_medium.setObjectName("radio_db_medium")
         self.layout_db.addWidget(self.radio_db_medium)
-        self.radio_db_big = QtWidgets.QRadioButton(self.verticalLayoutWidget_6)
+        self.radio_db_big = QtWidgets.QRadioButton(self.verticalLayoutWidget_6, clicked=lambda: self.click_big_db())
         self.radio_db_big.setObjectName("radio_db_big")
         self.layout_db.addWidget(self.radio_db_big)
         self.label_11 = QtWidgets.QLabel(self.centralwidget)
@@ -311,6 +311,19 @@ class Ui_MainWindow(qtw.QWidget):
         self.window.show()
 
     def new_population_signal_handler(self, new_population_signal):
+        algorithm.main_inventory = algorithm.GeneralInventory(algorithm.path_to_inventory)
+        algorithm.main_sellers_base = algorithm.SellersBase(algorithm.main_inventory,
+                                                            algorithm.path_to_seller_base,
+                                                            algorithm.path_to_db)
+        algorithm.main_client = algorithm.Client(0,
+                                                 algorithm.shopping_list,
+                                                 algorithm.budget,
+                                                 algorithm.main_inventory)
+        algorithm.sol = algorithm.Solution(algorithm.main_sellers_base.sellers_list,
+                                           algorithm.main_inventory.product_list)
+        algorithm.dict_of_sells = algorithm.main_sellers_base.get_sellers_with_items(
+            algorithm.main_client.get_product_ids())
+        algorithm.list_of_orders = algorithm.main_client.get_oder_quantity()
         new_general_population = []
         for _ in range(int(self.txt_population_size.text())):
             algorithm.sol.get_starting_solution(algorithm.dict_of_sells,
@@ -320,6 +333,7 @@ class Ui_MainWindow(qtw.QWidget):
             algorithm.sol.reset_solution()
         algorithm.general_population = new_general_population
         self.ui.text_browser_population.setText(self.print_population())
+        algorithm.new_population_created = True
 
     def open_new_shopping_list_window(self):
         self.window = QtWidgets.QMainWindow()
@@ -343,16 +357,16 @@ class Ui_MainWindow(qtw.QWidget):
             split_i = new_shopping_list[i].split(': ')
             shopping_list.append((split_i[0], int(split_i[1])))
         algorithm.shopping_list = shopping_list
-        algorithm.main_inventory = algorithm.GeneralInventory(algorithm.path_to_inventory)
-        algorithm.main_sellers_base = algorithm.SellersBase(algorithm.main_inventory,
-                                                            algorithm.path_to_seller_base,
-                                                            algorithm.path_to_db)
-        algorithm.main_client = algorithm.Client(0,
-                                                 algorithm.shopping_list,
-                                                 algorithm.budget,
-                                                 algorithm.main_inventory)
-        algorithm.dict_of_sells = algorithm.main_sellers_base.get_sellers_with_items(algorithm.main_client.get_product_ids())
-        algorithm.list_of_orders = algorithm.main_client.get_oder_quantity()
+        # algorithm.main_inventory = algorithm.GeneralInventory(algorithm.path_to_inventory)
+        # algorithm.main_sellers_base = algorithm.SellersBase(algorithm.main_inventory,
+        #                                                     algorithm.path_to_seller_base,
+        #                                                     algorithm.path_to_db)
+        # algorithm.main_client = algorithm.Client(0,
+        #                                          algorithm.shopping_list,
+        #                                          algorithm.budget,
+        #                                          algorithm.main_inventory)
+        # algorithm.dict_of_sells = algorithm.main_sellers_base.get_sellers_with_items(algorithm.main_client.get_product_ids())
+        # algorithm.list_of_orders = algorithm.main_client.get_oder_quantity()
 
     def prepare_gui_parameters(self):
         # Parameters
@@ -363,21 +377,7 @@ class Ui_MainWindow(qtw.QWidget):
         algorithm.iters_without_change = int(self.txt_solution_accuracy.text())
         algorithm.budget = int(self.txt_budget.text())
         # Database
-        if self.radio_db_small.isChecked():
-            algorithm.chosen_max = algorithm.maxes[2]
-            algorithm.path_to_inventory = 'small_unique_items_file.csv'
-            algorithm.path_to_seller_base = 'small_unique_sellers.csv'
-            algorithm.path_to_db = 'database_small.csv'
-        elif self.radio_db_medium.isChecked():
-            algorithm.chosen_max = algorithm.maxes[1]
-            algorithm.path_to_inventory = 'medium_unique_items_file.csv'
-            algorithm.path_to_seller_base = 'medium_unique_sellers.csv'
-            algorithm.path_to_db = 'database_medium.csv'
-        elif self.radio_db_big.isChecked():
-            algorithm.chosen_max = algorithm.maxes[0]
-            algorithm.path_to_inventory = 'big_unique_items_file.csv'
-            algorithm.path_to_seller_base = 'big_unique_sellers.csv'
-            algorithm.path_to_db = 'database_big.csv'
+        # Implemented in click_*_db()
         # Mutate
         if self.radio_mut_singular.isChecked():
             algorithm.mutation_type = 'singular'
@@ -409,6 +409,24 @@ class Ui_MainWindow(qtw.QWidget):
         print(f'mutation_type: {algorithm.mutation_type}')
         print(f'crossover_method: {algorithm.crossover_method}')
         print(f'selection_method: {algorithm.selection_method}')
+
+    def click_small_db(self):
+        algorithm.chosen_max = algorithm.maxes[2]
+        algorithm.path_to_inventory = 'small_unique_items_file.csv'
+        algorithm.path_to_seller_base = 'small_unique_sellers.csv'
+        algorithm.path_to_db = 'database_small.csv'
+
+    def click_medium_db(self):
+        algorithm.chosen_max = algorithm.maxes[1]
+        algorithm.path_to_inventory = 'medium_unique_items_file.csv'
+        algorithm.path_to_seller_base = 'medium_unique_sellers.csv'
+        algorithm.path_to_db = 'database_medium.csv'
+
+    def click_big_db(self):
+        algorithm.chosen_max = algorithm.maxes[0]
+        algorithm.path_to_inventory = 'big_unique_items_file.csv'
+        algorithm.path_to_seller_base = 'big_unique_sellers.csv'
+        algorithm.path_to_db = 'database_big.csv'
 
     def create_solution_matrix_tab(self, solution_matrix):
         self.table_widget_solution_matrix.setRowCount(len(solution_matrix))
@@ -466,11 +484,32 @@ class Ui_MainWindow(qtw.QWidget):
 
     def gui_main_fun(self):
         self.prepare_gui_parameters()
-        current_best_solution, current_lowest_obj_func, i_iter, obj_functions_to_plot = algorithm.main()
+        if not algorithm.new_population_created:
+            algorithm.main_inventory = algorithm.GeneralInventory(algorithm.path_to_inventory)
+            algorithm.main_sellers_base = algorithm.SellersBase(algorithm.main_inventory,
+                                                                algorithm.path_to_seller_base,
+                                                                algorithm.path_to_db)
+            algorithm.main_client = algorithm.Client(0,
+                                                     algorithm.shopping_list,
+                                                     algorithm.budget,
+                                                     algorithm.main_inventory)
+            algorithm.sol = algorithm.Solution(algorithm.main_sellers_base.sellers_list,
+                                              algorithm.main_inventory.product_list)
+            algorithm.dict_of_sells = algorithm.main_sellers_base.get_sellers_with_items(algorithm.main_client.get_product_ids())
+            algorithm.list_of_orders = algorithm.main_client.get_oder_quantity()
+            algorithm.general_population = []
+            for _ in range(algorithm.population_size):
+                algorithm.sol.get_starting_solution(algorithm.dict_of_sells,
+                                                    algorithm.list_of_orders,
+                                                    'random')
+                algorithm.general_population.append(algorithm.deepcopy(algorithm.sol))
+                algorithm.sol.reset_solution()
 
+        current_best_solution, current_lowest_obj_func, i_iter, obj_functions_to_plot = algorithm.main()
         self.create_solution_matrix_tab(current_best_solution.solution_matrix)
         self.create_algorithm_chart_tab(i_iter, obj_functions_to_plot)
         self.create_charts_tab(current_best_solution.solution_matrix)
+        algorithm.new_population_created = False
 
 
 if __name__ == "__main__":
