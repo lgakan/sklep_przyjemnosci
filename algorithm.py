@@ -158,7 +158,7 @@ def crossover_basic(numpy_matrices_list: list, order_length: int, choice='random
         if mode == 'rows_idx':
             rows_idx_to_swap = sample([i for i in range(m)],  order_length // 2)
         if mode == 'rows_number':
-            rows_idx_to_swap = sample([i for i in range(0, m, 2)], randint(1, (order_length // 2) - 1))
+            rows_idx_to_swap = sample([i for i in range(0, m-1, 2)], randint(1, (order_length // 2) - 1))
         if mode == 'rows_idx_and_number':
             rows_idx_to_swap = sample([i for i in range(m)], randint(1, order_length - 1))
     elif choice == 'choice':
