@@ -4,7 +4,8 @@ from product import Product
 
 class GeneralInventory:
     def __init__(self):
-        self.file_reader = FileReader('unique_items_file.csv')
+        self.file_reader = FileReader('small_unique_items_file.csv')
+        # self.file_reader = FileReader('unique_items_file.csv')
         self.product_list = []
         self.add_products_from_file()
 

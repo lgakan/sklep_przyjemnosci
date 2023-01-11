@@ -1,8 +1,8 @@
-----
+----done
 1. Zależność ilości iteracji od rozmiaru populacji
 1.1. Ująć w 3 różnych przypadkach parent percentage
 
-----
+----done
 2. Zależność ilości iteracji od parent percentage
 2.1. Ująć w 3 różnych przypadkach rozmiaru populacji
 
@@ -21,10 +21,10 @@
 ----
 3 + 4 + 5 dla jednakowego rozmiaru populacji i parent percentage - na podstawie wyników należy wskazać i przetestować najgorszy spodziewany scenariusz i najlepszy
 
-----
+----done
 6. Najgorszy spodziewany scenariusz (kombinacja 3,4,5) + weryfikacja
 
-----
+----done
 7. Najlepszy spodziewany scenariusz (kombinacja 3,4,5) + weryfikacja
 
 ----
@@ -50,6 +50,19 @@
 
 ----
 1-10 Zaproponowanie najlepszych wartości parametrów dla 3 różnych list zakupów
+
+najlepsze:
+szansa krzyżowania 0.1-0.2
+selekcja - ranking
+mutacja - singular
+rozmiar populacji 40
+
+najgorsze:
+szansa krzyżowania 0.7
+selekcja - turniejowa
+mutacja - elimination
+rozmiar populacji 10
+
 
 ++++ Wiktor
 11. Przypadek ze znanym rozwiązaniem - jeden sprzedawca posiada wszystkie produkty w najniższych cenach
