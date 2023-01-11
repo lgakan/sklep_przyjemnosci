@@ -26,14 +26,10 @@ budget = 1600
 maxes = [[267, 199, 314, 376, 284, 293, 238, 352, 268, 214, 218, 274, 246, 200, 321, 224, 373, 330, 346, 311, 306, 321, 264, 266, 236, 195, 230, 203, 336, 286, 277, 252, 251, 244, 288, 225, 199, 249, 212, 224, 314, 290, 404, 388, 303, 322, 266, 292, 266, 340],
          [157, 193, 184, 104, 179, 203, 147, 170, 210, 153, 141, 189, 133, 153, 184, 184, 159, 233, 86, 198, 196, 155, 175, 179, 209, 109, 120, 216, 166, 154],
          [148, 183, 77, 91, 157, 136, 94, 175, 127, 126, 84, 162, 205, 125, 162, 106, 122, 162, 122, 77]]
-# path_to_inventory = 'small_unique_items_file.csv'
-# path_to_seller_base = 'small_unique_sellers.csv'
-# path_to_db = 'database_small.csv'
-# chosen_max = maxes[2]
-path_to_inventory = 'medium_unique_items_file.csv'
-path_to_seller_base = 'medium_unique_sellers.csv'
-path_to_db = 'database_medium.csv'
-chosen_max = maxes[1]
+path_to_inventory = 'small_unique_items_file.csv'
+path_to_seller_base = 'small_unique_sellers.csv'
+path_to_db = 'database_small.csv'
+chosen_max = maxes[2]
 main_inventory = GeneralInventory(path_to_inventory)
 main_sellers_base = SellersBase(main_inventory, path_to_seller_base, path_to_db)
 
@@ -49,8 +45,9 @@ for _ in range(population_size):
                               'random')
     general_population.append(deepcopy(sol))
     sol.reset_solution()
+# TODO: Delete if not necessary
 sol_mat = deepcopy(sol.solution_matrix)
-general_population_copy = deepcopy(general_population)  # to użyć gdzieś ewentualnie
+general_population_copy = deepcopy(general_population)
 
 
 # Returns:
@@ -125,56 +122,6 @@ def selection_ranking(population: list, amount, budget):
            [i for _, i in parents_sorted]
 
 
-# def mutate_circle(matrix: np.array):
-#     m, n = np.shape(matrix)
-#     for i in range(m):
-#         for j in range(n):
-#             if j+1 >= n or i+1 >= m:
-#                 break
-#             elem = matrix[i][j+1]
-#             matrix[i][j+1] = matrix[i][j]
-#             elem1 = matrix[i+1][j+1]
-#             matrix[i+1][j+1] = elem
-#             elem2 = matrix[i+1][j]
-#             matrix[i+1][j] = elem1
-#             matrix[i][j] = elem2
-#     return matrix
-
-
-# def mutate_castling(matrix, type_mut='row'):
-#     m, n = np.shape(matrix)
-#     if type_mut == 'row':
-#         pivot = m // 2
-#         index_1 = randint(0, pivot-1)
-#         index_2 = randint(pivot, m-1)
-#         matrix[index_1], matrix[index_2] = matrix[index_2], matrix[index_1]
-#         return matrix
-#     if type_mut == 'col':
-#         pivot = n // 2
-#         index_1 = randint(0, pivot-1)
-#         index_2 = randint(pivot, m-1)
-#         for i in range(m):
-#             matrix[i][index_1], matrix[i][index_2] = matrix[i][index_2], matrix[i][index_1]
-#         return matrix
-
-
-# def crossover_halves(matrix1: np.array, matrix2: np.array, type_cross='rows'):
-#     m, n = np.shape(matrix1)
-#     if type_cross == 'rows':
-#         for i in range(m):
-#             if type_cross == 'rows':
-#                 if i == m//2:
-#                     break
-#                 for j in range(n):
-#                     matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
-#             elif type_cross == 'columns':
-#                 for j in range(n):
-#                     if j == n // 2:
-#                         break
-#                     matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
-#         return matrix1, matrix2
-
-
 def crossover_every_2nd(numpy_matrices_list: list, type_cross='rows'):
     m, n = np.shape(numpy_matrices_list[0])
     matrices_list = [i.tolist() for i in numpy_matrices_list]
@@ -197,15 +144,6 @@ def crossover_every_2nd(numpy_matrices_list: list, type_cross='rows'):
                     list_to_return.append(matrix1)
                     list_to_return.append(matrix2)
     return [np.array(i) for i in list_to_return]
-
-
-# def crossover_chess(matrix1, matrix2):
-#     m, n = np.shape(matrix1)
-#     for i in range(m):
-#         for j in range(n):
-#             if (i + j) % 2 != 0:
-#                 matrix1[i][j], matrix2[i][j] = matrix2[i][j], matrix1[i][j]
-#     return matrix1, matrix2
 
 
 # example of oder_list [('item_15', 7), ('item_16', 10)]
@@ -345,7 +283,7 @@ def main():
     obj_functions_to_plot = []
     i_iter = 1
     iter_counter = 0
-    starting_population = deepcopy(general_population)  # mój pomysł - tworzenie tego za pomocą funkcji, wtedy łatwiej w testach
+    starting_population = deepcopy(general_population)
     current_best_solution = None
     current_lowest_obj_func = np.inf
     while i_iter <= max_iters and iter_counter <= iters_without_change:
@@ -427,8 +365,6 @@ def main():
         iter_counter += 1
         obj_functions_to_plot.append(current_lowest_obj_func)
 
-    # general_population = []
-    # general_population = general_population_copy #ewentualnie jakieś podmienianie na nowe
     return current_best_solution, current_lowest_obj_func, i_iter, obj_functions_to_plot
 
 

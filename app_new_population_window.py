@@ -34,7 +34,8 @@ class Ui_window_create_new_population(qtw.QWidget):
 
     def retranslateUi(self, window_create_new_population):
         _translate = QtCore.QCoreApplication.translate
-        window_create_new_population.setWindowTitle(_translate("window_create_new_population", "MainWindow"))
+        window_create_new_population.setWindowTitle(_translate("window_create_new_population", "BLS - Create new population"))
+        window_create_new_population.setWindowIcon(QtGui.QIcon('icon.png'))
         self.button_create_new_population.setText(_translate("window_create_new_population", "Create_new_population"))
 
     def create_new_population_fun(self):

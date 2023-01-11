@@ -75,7 +75,8 @@ class Ui_window_create_new_shopping_list(qtw.QWidget):
 
     def retranslateUi(self, window_create_new_shopping_list):
         _translate = QtCore.QCoreApplication.translate
-        window_create_new_shopping_list.setWindowTitle(_translate("window_create_new_shopping_list", "MainWindow"))
+        window_create_new_shopping_list.setWindowTitle(_translate("window_create_new_shopping_list", "BLS - Create new shopping list"))
+        window_create_new_shopping_list.setWindowIcon(QtGui.QIcon('icon.png'))
         self.label.setText(_translate("window_create_new_shopping_list", "Item name"))
         self.txt_item_name.setText(_translate("window_create_new_shopping_list", "item_1"))
         self.label_2.setText(_translate("window_create_new_shopping_list", "Item quantity"))

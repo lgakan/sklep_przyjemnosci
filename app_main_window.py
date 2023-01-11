@@ -8,6 +8,7 @@ from app_new_shopping_list_window import Ui_window_create_new_shopping_list
 import algorithm
 import pyqtgraph as pg
 
+
 class ReadOnlyDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
         return
@@ -100,7 +101,7 @@ class Ui_MainWindow(qtw.QWidget):
         self.button_start.setGeometry(QtCore.QRect(50, 10, 75, 23))
         self.button_start.setObjectName("button_start")
         self.button_restart = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.restart_parameters())
-        self.button_restart.setGeometry(QtCore.QRect(30, 860, 75, 23))
+        self.button_restart.setGeometry(QtCore.QRect(30, 860, 120, 23))
         self.button_restart.setObjectName("button_restart")
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.tabWidget.setGeometry(QtCore.QRect(180, 10, 921, 881))
@@ -222,14 +223,14 @@ class Ui_MainWindow(qtw.QWidget):
         self.layout_db = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_6)
         self.layout_db.setContentsMargins(0, 0, 0, 0)
         self.layout_db.setObjectName("layout_db")
-        self.radio_db_small = QtWidgets.QRadioButton(self.verticalLayoutWidget_6, clicked=lambda: self.click_small_db())
+        self.radio_db_small = QtWidgets.QRadioButton(self.verticalLayoutWidget_6, clicked=lambda: self.small_db_clicked())
         self.radio_db_small.setChecked(True)
         self.radio_db_small.setObjectName("radio_db_small")
         self.layout_db.addWidget(self.radio_db_small)
-        self.radio_db_medium = QtWidgets.QRadioButton(self.verticalLayoutWidget_6, clicked=lambda: self.click_medium_db())
+        self.radio_db_medium = QtWidgets.QRadioButton(self.verticalLayoutWidget_6, clicked=lambda: self.medium_db_clicked())
         self.radio_db_medium.setObjectName("radio_db_medium")
         self.layout_db.addWidget(self.radio_db_medium)
-        self.radio_db_big = QtWidgets.QRadioButton(self.verticalLayoutWidget_6, clicked=lambda: self.click_big_db())
+        self.radio_db_big = QtWidgets.QRadioButton(self.verticalLayoutWidget_6, clicked=lambda: self.big_db_clicked())
         self.radio_db_big.setObjectName("radio_db_big")
         self.layout_db.addWidget(self.radio_db_big)
         self.label_11 = QtWidgets.QLabel(self.centralwidget)
@@ -264,7 +265,7 @@ class Ui_MainWindow(qtw.QWidget):
         self.radio_mut_singular.setText(_translate("MainWindow", "Singular"))
         self.radio_mut_elimination.setText(_translate("MainWindow", "Elimination"))
         self.button_start.setText(_translate("MainWindow", "START"))
-        self.button_restart.setText(_translate("MainWindow", "RESTART"))
+        self.button_restart.setText(_translate("MainWindow", "Restart Parameters"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.widget_charts), _translate("MainWindow", "Charts"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.widget_algorithm), _translate("MainWindow", "Algorithm"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.widget_solution_matrix), _translate("MainWindow", "Solution Matrix"))
@@ -310,7 +311,7 @@ class Ui_MainWindow(qtw.QWidget):
         self.ui.signal_create_new_population_clicked.connect(self.new_population_signal_handler)
         self.window.show()
 
-    def new_population_signal_handler(self, new_population_signal):
+    def new_population_signal_handler(self):
         algorithm.main_inventory = algorithm.GeneralInventory(algorithm.path_to_inventory)
         algorithm.main_sellers_base = algorithm.SellersBase(algorithm.main_inventory,
                                                             algorithm.path_to_seller_base,
@@ -357,16 +358,6 @@ class Ui_MainWindow(qtw.QWidget):
             split_i = new_shopping_list[i].split(': ')
             shopping_list.append((split_i[0], int(split_i[1])))
         algorithm.shopping_list = shopping_list
-        # algorithm.main_inventory = algorithm.GeneralInventory(algorithm.path_to_inventory)
-        # algorithm.main_sellers_base = algorithm.SellersBase(algorithm.main_inventory,
-        #                                                     algorithm.path_to_seller_base,
-        #                                                     algorithm.path_to_db)
-        # algorithm.main_client = algorithm.Client(0,
-        #                                          algorithm.shopping_list,
-        #                                          algorithm.budget,
-        #                                          algorithm.main_inventory)
-        # algorithm.dict_of_sells = algorithm.main_sellers_base.get_sellers_with_items(algorithm.main_client.get_product_ids())
-        # algorithm.list_of_orders = algorithm.main_client.get_oder_quantity()
 
     def prepare_gui_parameters(self):
         # Parameters
@@ -377,7 +368,7 @@ class Ui_MainWindow(qtw.QWidget):
         algorithm.iters_without_change = int(self.txt_solution_accuracy.text())
         algorithm.budget = int(self.txt_budget.text())
         # Database
-        # Implemented in click_*_db()
+        # Implemented in small_db_clicked() / medium_db_clicked() / big_db_clicked()
         # Mutate
         if self.radio_mut_singular.isChecked():
             algorithm.mutation_type = 'singular'
@@ -410,19 +401,19 @@ class Ui_MainWindow(qtw.QWidget):
         print(f'crossover_method: {algorithm.crossover_method}')
         print(f'selection_method: {algorithm.selection_method}')
 
-    def click_small_db(self):
+    def small_db_clicked(self):
         algorithm.chosen_max = algorithm.maxes[2]
         algorithm.path_to_inventory = 'small_unique_items_file.csv'
         algorithm.path_to_seller_base = 'small_unique_sellers.csv'
         algorithm.path_to_db = 'database_small.csv'
 
-    def click_medium_db(self):
+    def medium_db_clicked(self):
         algorithm.chosen_max = algorithm.maxes[1]
         algorithm.path_to_inventory = 'medium_unique_items_file.csv'
         algorithm.path_to_seller_base = 'medium_unique_sellers.csv'
         algorithm.path_to_db = 'database_medium.csv'
 
-    def click_big_db(self):
+    def big_db_clicked(self):
         algorithm.chosen_max = algorithm.maxes[0]
         algorithm.path_to_inventory = 'big_unique_items_file.csv'
         algorithm.path_to_seller_base = 'big_unique_sellers.csv'
